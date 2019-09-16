@@ -80,7 +80,7 @@ script = ["""
     # Check if installed-requirements.txt exists.
     if ! test -f $TARGET/installed-requirements.txt; then
         # If it not exists install pipenv and create installed-requirements.txt
-        pipenv install --python python3.6
+        pipenv install --python python3
         pipenv lock -r > $TARGET/installed-requirements.txt
         pipenv run client/CasperLabsClient/install.sh
     else
@@ -89,7 +89,7 @@ script = ["""
         INSTALLED_REQS=$(cat $TARGET/installed-requirements.txt | md5sum )
         CURRENT_REQS=$(pipenv lock -r | md5sum )
         if [ "$INSTALLED_REQS" != "$CURRENT_REQS" ]; then
-            pipenv install --python python3.6
+            pipenv install --python python3
             pipenv lock -r > $TARGET/installed-requirements.txt
             pipenv run client/CasperLabsClient/install.sh
         fi
