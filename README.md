@@ -21,3 +21,13 @@ sudo pip3 install pipenv
 ```
 git clone https://github.com/zie1ony/casperlabs-smart-contract-template
 ```
+
+## Build local dev environment
+```
+cargo make prepare
+```
+
+## Start interactive environment
+```
+cargo make console
+```
