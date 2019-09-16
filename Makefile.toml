@@ -33,13 +33,13 @@ script = ["""
     # docker pull casperlabs/execution-engine:latest
     # docker pull casperlabs/client:latest
 
-    # docker pull casperlabs/node:dev
-    # docker pull casperlabs/execution-engine:dev
-    # docker pull casperlabs/client:dev
+    docker pull casperlabs/node:dev
+    docker pull casperlabs/execution-engine:dev
+    docker pull casperlabs/client:dev
     
-    # docker tag casperlabs/node:dev casperlabs/execution-engine:latest
-    # docker tag casperlabs/execution-engine:dev casperlabs/execution-engine:latest
-    # docker tag casperlabs/client:dev casperlabs/client:latest
+    docker tag casperlabs/node:dev casperlabs/execution-engine:latest
+    docker tag casperlabs/execution-engine:dev casperlabs/execution-engine:latest
+    docker tag casperlabs/client:dev casperlabs/client:latest
 
 """]
 
