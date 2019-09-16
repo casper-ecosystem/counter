@@ -16,10 +16,11 @@ dependencies = [
 
 [tasks.download-casperlabs-repository]
 condition_script = [ "test ! -d ${CL_REPO}" ]
-script = [
-    "mkdir -p target",
-    "git clone https://github.com/CasperLabs/CasperLabs.git $CL_REPO"
-]
+script = ["""
+    mkdir -p target
+    git clone https://github.com/CasperLabs/CasperLabs.git $CL_REPO
+    git checkout 731633620cc500a2a7f762f01b81de644bab4a7c
+"""]
 
 [tasks.pull-casperlabs-latest-dockers]
 condition_script = ["""
@@ -28,9 +29,17 @@ condition_script = ["""
     test -z $(docker images -q casperlabs/client:latest)
 """]
 script = ["""
-    docker pull casperlabs/node:latest
-    docker pull casperlabs/execution-engine:latest
-    docker pull casperlabs/client:latest
+    # docker pull casperlabs/node:latest
+    # docker pull casperlabs/execution-engine:latest
+    # docker pull casperlabs/client:latest
+
+    docker pull casperlabs/node:dev
+    docker pull casperlabs/execution-engine:dev
+    docker pull casperlabs/client:dev
+    
+    docker tag casperlabs/node:dev casperlabs/execution-engine:latest
+    docker tag casperlabs/execution-engine:dev casperlabs/execution-engine:latest
+    docker tag casperlabs/client:dev casperlabs/client:latest
 """]
 
 [tasks.build-test-docker-images]
@@ -70,7 +79,7 @@ script = ["""
     # Check if installed-requirements.txt exists.
     if ! test -f $TARGET/installed-requirements.txt; then
         # If it not exists install pipenv and create installed-requirements.txt
-        pipenv install
+        pipenv install --python python3.6
         pipenv lock -r > $TARGET/installed-requirements.txt
         pipenv run client/CasperLabsClient/install.sh
     else
@@ -79,7 +88,7 @@ script = ["""
         INSTALLED_REQS=$(cat $TARGET/installed-requirements.txt | md5sum )
         CURRENT_REQS=$(pipenv lock -r | md5sum )
         if [ "$INSTALLED_REQS" != "$CURRENT_REQS" ]; then
-            pipenv install
+            pipenv install --python python3.6
             pipenv lock -r > $TARGET/installed-requirements.txt
             pipenv run client/CasperLabsClient/install.sh
         fi
