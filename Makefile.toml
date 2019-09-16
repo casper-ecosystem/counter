@@ -19,7 +19,7 @@ condition_script = [ "test ! -d ${CL_REPO}" ]
 script = ["""
     mkdir -p target
     git clone https://github.com/CasperLabs/CasperLabs.git $CL_REPO
-    git checkout 731633620cc500a2a7f762f01b81de644bab4a7c
+    # git checkout 731633620cc500a2a7f762f01b81de644bab4a7c
 """]
 
 [tasks.pull-casperlabs-latest-dockers]
@@ -33,13 +33,14 @@ script = ["""
     # docker pull casperlabs/execution-engine:latest
     # docker pull casperlabs/client:latest
 
-    docker pull casperlabs/node:dev
-    docker pull casperlabs/execution-engine:dev
-    docker pull casperlabs/client:dev
+    # docker pull casperlabs/node:dev
+    # docker pull casperlabs/execution-engine:dev
+    # docker pull casperlabs/client:dev
     
-    docker tag casperlabs/node:dev casperlabs/execution-engine:latest
-    docker tag casperlabs/execution-engine:dev casperlabs/execution-engine:latest
-    docker tag casperlabs/client:dev casperlabs/client:latest
+    # docker tag casperlabs/node:dev casperlabs/execution-engine:latest
+    # docker tag casperlabs/execution-engine:dev casperlabs/execution-engine:latest
+    # docker tag casperlabs/client:dev casperlabs/client:latest
+
 """]
 
 [tasks.build-test-docker-images]
