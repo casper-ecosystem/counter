@@ -19,7 +19,9 @@ condition_script = [ "test ! -d ${CL_REPO}" ]
 script = ["""
     mkdir -p target
     git clone https://github.com/CasperLabs/CasperLabs.git $CL_REPO
-    # git checkout 731633620cc500a2a7f762f01b81de644bab4a7c
+
+    # Open 40403 port.
+    patch target/CasperLabs/integration-testing/test/cl_node/docker_node.py docker_node_port.patch
 """]
 
 [tasks.pull-casperlabs-latest-dockers]

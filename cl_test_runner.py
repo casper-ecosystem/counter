@@ -6,6 +6,7 @@ import os
 import subprocess
 import atexit
 import unittest
+import pickle
 import docker as docker_py
 from test.cl_node.common import random_string, MAX_PAYMENT_COST
 from test.cl_node.casperlabs_network import CasperLabsNetwork
@@ -27,7 +28,6 @@ class StandaloneNetwork(CasperLabsNetwork):
             node_private_key=kp.private_key,
             node_public_key=kp.public_key,
             network=self.create_docker_network(),
-            is_payment_code_enabled=self.is_payment_code_enabled,
             initial_motes=self.initial_motes,
             node_account=kp,
             grpc_encryption=self.grpc_encryption,
@@ -37,15 +37,21 @@ class StandaloneNetwork(CasperLabsNetwork):
 
 print("Starting local network...")
 docker_client = docker_py.from_env()
-local_network = StandaloneNetwork(docker_client)
-local_network.create_cl_network()
-NetworkInstance(local_network)
+network = StandaloneNetwork(docker_client)
+network.create_cl_network()
+NetworkInstance(network)
 print("Starting local network... DONE!")
 
-def run_tests():
+
+def cargo(command: str):
     os.chdir("../../../")
-    result = subprocess.call(["cargo", "make", "reload"])
+    result = subprocess.call(["cargo", "make", command])
     os.chdir("./target/CasperLabs/integration-testing/")
+    return result
+
+
+def run_tests():
+    result = cargo("reload")
     if result != 0:
         print("Build failed.")
         return
@@ -67,6 +73,7 @@ def run_tests():
     runner.run(suites)
 
 run_tests()
+
 # def on_exit():
 #     print("Stopping local network...")
 #     docker_client.containers.prune()

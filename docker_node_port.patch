@@ -1,0 +1,10 @@
+--- docker_node.py	2019-09-17 11:46:01.467957161 +0200
++++ docker_node_2.py	2019-09-17 11:46:21.559893270 +0200
+@@ -129,6 +129,7 @@
+         return {
+             f"{self.GRPC_INTERNAL_PORT}/tcp": self.grpc_internal_docker_port,
+             f"{self.GRPC_EXTERNAL_PORT}/tcp": self.grpc_external_docker_port,
++            f"{self.HTTP_PORT}/tcp": self.HTTP_PORT,
+         }
+ 
+     @property
