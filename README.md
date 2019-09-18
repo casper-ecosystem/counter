@@ -31,7 +31,7 @@ $ brew install protobuf git pipenv md5sha1sum
 ```
 
 #### Docker for macOS
-Follow the instructions on [this page](https://docs.docker.com/install/) for platform specific installation steps
+Follow the instructions on [this page](https://docs.docker.com/docker-for-mac/install/) for platform specific installation steps
 
 ## Step 2 - Clone this repository
 ```bash
