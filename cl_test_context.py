@@ -2,9 +2,9 @@ import requests
 import casperlabs_client
 import json
 
-from test.cl_node.common import Contract
-from test.cl_node.casperlabs_accounts import Account
-from test.cl_node.casperlabs_network import CasperLabsNetwork
+from casperlabs_local_net.common import Contract
+from casperlabs_local_net.casperlabs_accounts import Account
+from casperlabs_local_net.casperlabs_network import CasperLabsNetwork
 
 GRAPHQL_URL = 'http://localhost:40403/graphql'
 

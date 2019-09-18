@@ -17,14 +17,20 @@ $ brew install protobuf git pipenv md5sha1sum
 #### Docker for macOS
 Follow the instructions on [this page](https://docs.docker.com/install/) for platform specific installation steps
 
-## Step 2 - Install Rust environment
+## Step 2 - Clone this repository
+```bash
+$ git clone https://github.com/zie1ony/casperlabs-smart-contract-template
+$ cd casperlabs-smart-contract-template
+```
+
+## Step 3 - Install Rust environment
 
 ```bash
 $ curl https://sh.rustup.rs -sSf | sh
 $ cargo install cargo-make
 ```
 
-## Step 3 - Install Python environment
+## Step 4 - Install Python environment
 
 ### Debian, Ubuntu, Mint
 ```bash
@@ -35,12 +41,6 @@ $ sudo pip3 install pipenv
 ### macOS
 ```bash
 $ brew install python3 pipenv
-```
-
-## Step 4 - Clone this repository
-```bash
-$ git clone https://github.com/zie1ony/casperlabs-smart-contract-template
-$ cd casperlabs-smart-contract-template
 ```
 
 ## Step 5 - Prepare local environment

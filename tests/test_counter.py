@@ -1,9 +1,10 @@
-import unittest
-from test.cl_test_context import NetworkInstance, deploy_and_propose, query_global_state, pp_json, next_account
-from test.cl_node.casperlabs_accounts import Account
-from test.cl_node.common import Contract
 import json
+import unittest
 
+from casperlabs_local_net.casperlabs_accounts import Account
+from casperlabs_local_net.common import Contract
+
+from cl_test_context import NetworkInstance, deploy_and_propose, query_global_state, next_account
 
 class TestCounter(unittest.TestCase):
 

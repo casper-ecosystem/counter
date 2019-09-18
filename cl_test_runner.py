@@ -1,6 +1,3 @@
-# import os
-# os.chdir("./target/CasperLabs/integration-testing/")
-
 import importlib
 import os
 import subprocess
@@ -8,10 +5,12 @@ import atexit
 import unittest
 import pickle
 import docker as docker_py
-from test.cl_node.common import random_string, MAX_PAYMENT_COST
-from test.cl_node.casperlabs_network import CasperLabsNetwork
-from test.cl_node.docker_base import DockerConfig
-from test.cl_test_context import NetworkInstance
+
+from casperlabs_local_net.common import random_string, MAX_PAYMENT_COST
+from casperlabs_local_net.casperlabs_network import CasperLabsNetwork
+from casperlabs_local_net.docker_base import DockerConfig
+
+from cl_test_context import NetworkInstance
 
 
 class StandaloneNetwork(CasperLabsNetwork):
