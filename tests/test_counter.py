@@ -15,15 +15,15 @@ class TestCounter(unittest.TestCase):
         # Prepare account with positive balance.
         account: Account = next_account(network, 100000000)
 
-        # Deploy counter smart contract and check initial value.
+        # Deploy counter smart contract and check the initial value.
         block_hash, deploy_hash = deploy_and_propose(network, "counter_define.wasm", account)
         self.assertEqual(get_count_value(account, block_hash), 0)
 
-        # # Increment value
+        # Increment the value
         block_hash, deploy_hash = deploy_and_propose(network, "counter_call.wasm", account)
-        self.assertEqual(get_count_value(account, block_hash), 1)
+        self.assertEqual(get_count_value(account, block_hash), 4)
 
-        # # Increment value again.
+        # Increment the value again.
         block_hash, deploy_hash = deploy_and_propose(network, "counter_call.wasm", account)
         self.assertEqual(get_count_value(account, block_hash), 2)
 

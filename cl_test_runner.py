@@ -28,7 +28,7 @@ class StandaloneNetwork(CasperLabsNetwork):
             initial_motes=self.initial_motes,
             node_account=kp,
             grpc_encryption=self.grpc_encryption,
-            command_timeout=20
+            command_timeout=30
         )
         self.add_bootstrap(config)
 

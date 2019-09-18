@@ -40,7 +40,6 @@ $ cd casperlabs-smart-contract-template
 ```
 
 ## Step 3 - Install Rust environment
-Make sure you are inside the repository, so when y
 ```bash
 $ curl https://sh.rustup.rs -sSf | sh
 $ cargo install cargo-make
