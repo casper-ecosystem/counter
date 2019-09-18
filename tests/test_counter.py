@@ -29,6 +29,7 @@ class TestCounter(unittest.TestCase):
 
 
 def get_count_value(account: Account, block_hash: str = None) -> int:
+    """ Query the the node to get the value of `count` under the `counter` smart contract. """
     block_hash = block_hash or get_latest_block_hash()
     return query_global_state(
         block_hash, 

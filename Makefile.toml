@@ -19,9 +19,6 @@ condition_script = [ "test ! -d ${CL_REPO}" ]
 script = ["""
     mkdir -p target
     git clone https://github.com/CasperLabs/CasperLabs.git $CL_REPO
-
-    # Open 40403 port.
-    # patch target/CasperLabs/integration-testing/test/cl_node/docker_node.py docker_node_port.patch
 """]
 
 [tasks.pull-casperlabs-latest-dockers]
@@ -105,7 +102,7 @@ script = ["${CL_REPO}/integration-testing/contracts/build_contracts.sh"]
 script = ["""
     cp cl_test_runner.py ${CL_REPO}/integration-testing/
     cp cl_test_context.py ${CL_REPO}/integration-testing/
-
+    
     cd ${CL_REPO}/integration-testing
     pipenv run python -i cl_test_runner.py
 """]

@@ -1,7 +1,6 @@
 import importlib
 import os
 import subprocess
-import atexit
 import unittest
 import pickle
 import docker as docker_py
@@ -16,7 +15,6 @@ from cl_test_context import NetworkInstance
 class StandaloneNetwork(CasperLabsNetwork):
     """ A single node network with just a bootstrap """
 
-    is_payment_code_enabled = False
     initial_motes = MAX_PAYMENT_COST * 100  # 10 millions * 100 = 1 billion motes
     grpc_encryption = False
 
@@ -34,6 +32,7 @@ class StandaloneNetwork(CasperLabsNetwork):
         )
         self.add_bootstrap(config)
 
+# Start docker network and save it under NetworkInstance singleton.
 print("Starting local network...")
 docker_client = docker_py.from_env()
 network = StandaloneNetwork(docker_client)
@@ -43,6 +42,7 @@ print("Starting local network... DONE!")
 
 
 def cargo(command: str):
+    """ Execute `cargo make <command>` in terminal. """
     os.chdir("../../../")
     result = subprocess.call(["cargo", "make", command])
     os.chdir("./target/CasperLabs/integration-testing/")
@@ -50,14 +50,17 @@ def cargo(command: str):
 
 
 def run_tests():
+    """ Run tests. """
+
+    # Compile smart contracts, copy *.wasm file to `resources` and copy tests to `test`. 
     result = cargo("reload")
     if result != 0:
         print("Build failed.")
         return
 
+    # Reload all test files from `test` directory.
     files = os.listdir('test')
     modules_names = [f[:-3] for f in files if f.startswith("test_") and f.endswith(".py")]
-
     loader = unittest.TestLoader()
     suites = unittest.TestSuite()
     for module_name in modules_names:
@@ -66,17 +69,9 @@ def run_tests():
         module_tests = loader.loadTestsFromModule(module)
         suites.addTest(module_tests)
 
+    # Execute tests.
     print("\nTests:")
-
     runner = unittest.TextTestRunner(verbosity=2, failfast=True, buffer=True)
     runner.run(suites)
 
 run_tests()
-
-# def on_exit():
-#     print("Stopping local network...")
-#     docker_client.containers.prune()
-#     docker_client.volumes.prune()
-#     docker_client.networks.prune()
-#     print("Stopping local network... DONE!")
-# atexit.register(on_exit)

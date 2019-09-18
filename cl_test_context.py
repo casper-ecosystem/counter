@@ -10,8 +10,9 @@ GRAPHQL_URL = 'http://localhost:40403/graphql'
 
 
 class NetworkInstance():
+    """ Singleton that holds CasperLabsNetwork object. """
     __network = None
-    def __new__(cls, network=None):
+    def __new__(cls, network = None):
         if NetworkInstance.__network is None:
             if network is None:
                 raise RuntimeError("NetworkInstance needs to be initialized.")
@@ -23,7 +24,8 @@ class NetworkInstance():
         return NetworkInstance.__network
 
 
-def deploy_and_propose(network, contract, account):
+def deploy_and_propose(network: CasperLabsNetwork, contract: str, account: Account) -> (str, str):
+    """ Wrapper method for contract deployment. """
     node = network.docker_nodes[0]
     response, deploy_hash = node.p_client.deploy(
         from_address=account.public_key_hex,
@@ -38,7 +40,8 @@ def deploy_and_propose(network, contract, account):
     return block_hash, deploy_hash.hex()
 
 
-def pp_json(json_thing, sort=True, indents=4):
+def pp_json(json_thing, sort: bool = True, indents: int = 4):
+    """ Pretty print JSON object. """
     try:
         if type(json_thing) is str:
             print(json.dumps(json.loads(json_thing), sort_keys=sort, indent=indents))
@@ -46,10 +49,10 @@ def pp_json(json_thing, sort=True, indents=4):
             print(json.dumps(json_thing, sort_keys=sort, indent=indents))
     except Exception:
         print(json_thing)
-    return None
 
 
 def query(graph_ql_query: str, debug: bool = False) -> dict:
+    """ Make a raw GraphQL query to the node. """
     query_json = {"query": graph_ql_query}
     r = requests.post(url=GRAPHQL_URL, json=query_json)
     if debug:
@@ -57,7 +60,8 @@ def query(graph_ql_query: str, debug: bool = False) -> dict:
     return json.loads(r.text)['data']
 
 
-def query_global_state(block_hash: str, key_type:str, key:str, path_segments:[str]) -> dict:
+def query_global_state(block_hash: str, key_type: str, key: str, path_segments: [str]) -> dict:
+    """ Build and execute GraphQL query agains CasperLabs schema. """
     q = f"""
         query {{
 
@@ -167,6 +171,7 @@ def query_global_state(block_hash: str, key_type:str, key:str, path_segments:[st
 
 
 def get_latest_block_hash() -> str:
+    """ Query node to get latest block hash. """
     q = f"""{{
             dagSlice(depth: 1) {{
                 blockHash
@@ -177,12 +182,13 @@ def get_latest_block_hash() -> str:
 
 
 def next_account(network, init_balance: int = 100000000) -> Account:
+    """ Get unused account with initial balance. """
     account: Account = network.get_key()
     node: DockerNode = network.docker_nodes[0]
     block_hash = node.transfer_to_account(account.file_id, init_balance)
     return account
 
-
+# Unit tests for NetworkInstance.
 if __name__ == "__main__":
     import unittest
     tc = unittest.TestCase()
