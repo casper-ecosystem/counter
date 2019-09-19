@@ -21,7 +21,7 @@ class TestCounter(unittest.TestCase):
 
         # Increment the value
         block_hash, deploy_hash = deploy_and_propose(network, "counter_call.wasm", account)
-        self.assertEqual(get_count_value(account, block_hash), 4)
+        self.assertEqual(get_count_value(account, block_hash), 1)
 
         # Increment the value again.
         block_hash, deploy_hash = deploy_and_propose(network, "counter_call.wasm", account)

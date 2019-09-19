@@ -42,7 +42,6 @@ $ cd casperlabs-smart-contract-template
 ## Step 3 - Install Rust environment
 ```bash
 $ curl https://sh.rustup.rs -sSf | sh
-$ cargo install cargo-make
 ```
 
 ## Step 4 - Install Python environment
@@ -61,14 +60,14 @@ $ brew install python3 pipenv
 ## Step 5 - Prepare local environment
 Run script to prepare docker images and setup python environment for this project.
 ```bash
-$ cargo make prepare
+$ make
 ```
 
 ## Step 6 - Start interactive environment
 Start interactive Python console with loaded developement node and with
 predefined accounts. It takes around 15 seconds to start docker nodes.
 ```bash
-$ cargo make console
+$ make console
 ```
 
 ## Step 7 - Run tests

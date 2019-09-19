@@ -41,10 +41,10 @@ NetworkInstance(network)
 print("Starting local network... DONE!")
 
 
-def cargo(command: str):
-    """ Execute `cargo make <command>` in terminal. """
+def make(command: str):
+    """ Execute `make <command>` in terminal. """
     os.chdir("../../../")
-    result = subprocess.call(["cargo", "make", command])
+    result = subprocess.call(["make", command])
     os.chdir("./target/CasperLabs/integration-testing/")
     return result
 
@@ -53,7 +53,7 @@ def run_tests():
     """ Run tests. """
 
     # Compile smart contracts, copy *.wasm file to `resources` and copy tests to `test`. 
-    result = cargo("reload")
+    result = make("reload")
     if result != 0:
         print("Build failed.")
         return
