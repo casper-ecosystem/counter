@@ -2,7 +2,7 @@
 
 This is an example of simple smart contract and how to deploy it to our devnet. The example is a counter smart contract.
 
-Repository uses (our template)[https://github.com/zie1ony/casperlabs-smart-contract-template].
+Repository uses our template: https://github.com/zie1ony/casperlabs-smart-contract-template .
 
 # Usage
 
