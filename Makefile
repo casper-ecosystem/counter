@@ -91,3 +91,4 @@ console: clean-docker-artifacts
 # Stop running Docker nodes with node and execution-engine. Remove network.
 clean-docker-artifacts:
 	cd ${IT} && pipenv run python docker_cleanup_assurance.py
+
