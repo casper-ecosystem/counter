@@ -25,7 +25,7 @@ Value of the counter should be `0`.
 
 ## Step 4 - Increment the counter.
 ```bash
-$ ./deploy-counter-call.sh
+$ ./scripts/increment-counter.sh
 ```
 
 Now check the value of the counter again. It should be `1`.
