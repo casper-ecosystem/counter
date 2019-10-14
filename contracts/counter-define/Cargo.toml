@@ -5,8 +5,8 @@ authors = ["Michael Birch <birchmd@casperlabs.io>"]
 edition = "2018"
 
 [lib]
-name = "counter_define"
 crate-type = ["cdylib"]
 
 [dependencies]
-casperlabs-contract-ffi = "0.13.0"
+contract-ffi = { package = "casperlabs-contract-ffi", version = "0.17.0" }
+# contract-ffi = {package = "casperlabs-contract-ffi", path = "../contract-ffi" }
