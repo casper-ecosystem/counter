@@ -1,8 +1,6 @@
 # Counter Example
 
-This is an example of simple smart contract and how to deploy it to our devnet. The example is a counter smart contract.
-
-Repository uses our template: https://github.com/zie1ony/casperlabs-smart-contract-template .
+This is an example of simple smart contract and how to deploy it to our devnet. The example is the counter smart contract.
 
 # Usage
 
@@ -11,19 +9,22 @@ Repository uses our template: https://github.com/zie1ony/casperlabs-smart-contra
 $ cargo build --release
 ```
 
-## Step 2 - Deploy the counter smart contract.
+## Step 2 - Update keys.
+In `keys` directory you can find example keys. They might not have sufficient funds, so please create you own keys using [Clarity](http://clarity.casperlabs.io). Remember to fund your keys using Clarity's faucet. 
+
+## Step 3 - Deploy the counter smart contract.
 Make sure to run scripts in the root directory!
 ```bash
 $ ./scripts/deploy-smart-contract.sh
 ```
 
-## Step 3 - Check the counter value.
+## Step 4 - Check the counter value.
 ```bash
 $ ./scripts/check-counter.sh
 ```
 Value of the counter should be `0`.
 
-## Step 4 - Increment the counter.
+## Step 5 - Increment the counter.
 ```bash
 $ ./scripts/increment-counter.sh
 ```

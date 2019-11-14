@@ -2,8 +2,8 @@
 DEFINE_WASM=target/wasm32-unknown-unknown/release/counter_define.wasm
 
 RESPONSE=$(casperlabs-client --host deploy.casperlabs.io deploy \
-    --private-key keys/key.private.key \
-    --payment-amount 10 \
+    --private-key keys/private-key \
+    --payment-amount 10000000 \
     --session $DEFINE_WASM \
 )
 
