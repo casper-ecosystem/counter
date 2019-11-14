@@ -1,6 +1,6 @@
 # Counter Example
 
-This is an example of simple smart contract and how to deploy it to our devnet. The example is the counter smart contract.
+This is an example of a simple smart contract and how to deploy it to our devnet. The example is the counter smart contract.
 
 # Usage
 
@@ -35,7 +35,7 @@ Now check the value of the counter again. It should be `1`.
 You can check the value of the counter using devnet's GraphQL console:
 https://devnet-graphql.casperlabs.io
 
-Go to and then:
+Go to the GraphQL console and then:
 
 ### Check latest block hash in 
 ```
@@ -48,7 +48,7 @@ query {
 
 ### Get public key of your account
 ```bash
-$ cat keys/key.public.hex.key
+$ cat keys/public-key
 ```
 
 ### Check the counter value.
