@@ -1,6 +1,6 @@
 #!/bin/bash
 
-PUBLIC_KEY=$(cat keys/key.public.hex.key)
+PUBLIC_KEY=$(cat keys/public-key-hex)
 
 RESPONSE=$(casperlabs-client --host deploy.casperlabs.io show-blocks)
 

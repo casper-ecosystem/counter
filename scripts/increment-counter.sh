@@ -2,8 +2,8 @@
 CALL_WASM=target/wasm32-unknown-unknown/release/counter_call.wasm
 
 RESPONSE=$(casperlabs-client --host deploy.casperlabs.io deploy \
-    --private-key keys/key.private.key \
-    --payment-amount 10 \
+    --private-key keys/private-key \
+    --payment-amount 10000000 \
     --session $CALL_WASM \
 )
 
