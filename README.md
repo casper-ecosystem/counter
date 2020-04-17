@@ -67,7 +67,7 @@ query {
   ) {
     value {
       __typename
-      ... on IntValue {
+      ... on I32 {
         int: value
       }
     }
