@@ -16,44 +16,26 @@ use contract::{
 };
 
 const COUNT_KEY: &str = "count";
-const COUNTER_ENTRY: &str = "counter_ext";
+const COUNTER_INC: &str = "counter_inc";
+const COUNTER_GET: &str = "counter_get";
 const COUNTER_KEY: &str = "counter";
-const GET_METHOD: &str = "get";
-const INC_METHOD: &str = "inc";
 
-enum Arg {
-    MethodName = 0,
-}
 
-#[repr(u16)]
-enum Error {
-    UnknownMethodName = 0,
-}
-
-impl Into<ApiError> for Error {
-    fn into(self) -> ApiError {
-        ApiError::User(self as u16)
-    }
+#[no_mangle]
+pub extern "C" fn counter_inc() {
+    let uref: URef = runtime::get_key(COUNT_KEY).unwrap().into_uref().unwrap();
+    storage::add(uref, 1);
 }
 
 #[no_mangle]
-pub extern "C" fn counter_ext() {
+pub extern "C" fn counter_get() {
     let uref: URef = runtime::get_key(COUNT_KEY).unwrap().into_uref().unwrap();
-    let method_name: String = runtime::get_named_arg(Arg::MethodName as u32)
-        .unwrap_or_revert_with(ApiError::MissingArgument)
-        .unwrap_or_revert_with(ApiError::InvalidArgument);
-    match method_name.as_str() {
-        INC_METHOD => storage::add(uref, 1),
-        GET_METHOD => {
-            let result: i32 = storage::read(uref)
-                .unwrap_or_revert_with(ApiError::Read)
-                .unwrap_or_revert_with(ApiError::ValueNotFound);
-            let typed_result = CLValue::from_t(result)
-                .unwrap_or_revert();
-            runtime::ret(typed_result);
-        }
-        _ => runtime::revert(Error::UnknownMethodName),
-    }
+    let result: i32 = storage::read(uref)
+        .unwrap_or_revert_with(ApiError::Read)
+        .unwrap_or_revert_with(ApiError::ValueNotFound);
+    let typed_result = CLValue::from_t(result)
+        .unwrap_or_revert();
+    runtime::ret(typed_result);
 }
 
 #[no_mangle]
@@ -66,8 +48,9 @@ pub extern "C" fn call() {
     counter_named_keys.insert(key_name, counter_local_key.into());
 
     // create entry point
-    let counter_entry_points = EntryPoints::new();
-    counter_entry_points.add_entry_point(EntryPoint::default_with_name(COUNTER_ENTRY));
+    let mut counter_entry_points = EntryPoints::new();
+    counter_entry_points.add_entry_point(EntryPoint::default_with_name(COUNTER_INC));
+    counter_entry_points.add_entry_point(EntryPoint::default_with_name(COUNTER_GET));
 
     let stored_contract_hash = storage::new_contract(counter_entry_points, Some(counter_named_keys), None, None);
     runtime::put_key(COUNTER_KEY, stored_contract_hash.0.into());
