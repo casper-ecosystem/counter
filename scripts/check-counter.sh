@@ -1,15 +1,14 @@
 #!/bin/bash
+PATH_TO_CASPER_NODE_REPO=/home/ethilios/CasperLabs/casper-node/
 
-PUBLIC_KEY=$(cat keys/public-key-hex)
+NODE_ADDRESS=http://localhost:40101
+STATE_ROUTE_HASH=$(casper-client get-block -n $NODE_ADDRESS | jq -r '.result.block.header.state_root_hash')
+PUBLIC_KEY=$PATH_TO_CASPER_NODE_REPO/utils/nctl/assets/net-1/nodes/node-2/keys/public_key.pem
 
-RESPONSE=$(casperlabs-client --host deploy.casperlabs.io show-blocks)
-
-BLOCK_HASH=$(echo $RESPONSE | awk -F "block_hash: \"" '{print $2}' | awk -F "\" header" '{print $1}')
-
-echo "Value of the 'count' in a Smart Contract named 'counter' deployed under $PUBLIC_KEY account."
-casperlabs-client --host deploy.casperlabs.io query-state \
-    --block-hash $BLOCK_HASH \
-    --type address \
+echo "Value of the 'count' in a Smart Contract named 'counter'"
+casper-client query-state \
+    --node-address $NODE_ADDRESS \
+    --state-root-hash $STATE_ROUTE_HASH \
     --key $PUBLIC_KEY \
-    --path "counter/count"
+    #--query-path "count"
 
