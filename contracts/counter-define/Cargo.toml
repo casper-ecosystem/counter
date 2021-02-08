@@ -8,4 +8,5 @@ edition = "2018"
 crate-type = ["cdylib"]
 
 [dependencies]
-contract-ffi = { package = "casperlabs-contract-ffi", version = "0.20.0" }
+contract = { package = "casper-contract", version = "0.7.0" }
+types = { package = "casper-types", version = "0.7.0" }
