@@ -1,12 +1,19 @@
 [package]
 name = "counter-define"
 version = "0.1.0"
-authors = ["Michael Birch <birchmd@casperlabs.io>"]
+authors = ["Maciej Zielinski <maciej@casperlabs.io>"]
 edition = "2018"
 
-[lib]
-crate-type = ["cdylib"]
-
 [dependencies]
-contract = { package = "casper-contract", version = "0.7.0" }
-types = { package = "casper-types", version = "0.7.0" }
+contract = { package = "casper-contract", version="0.7.6" }
+types = { package = "casper-types", version="0.7.6" }
+
+[[bin]]
+name = "counter-define"
+path = "src/main.rs"
+bench = false
+doctest = false
+test = false
+
+[features]
+default = ["contract/std", "types/std"]
