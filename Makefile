@@ -9,7 +9,7 @@ lint:
 	cargo clippy --all-targets --all -- -D warnings -A renamed_and_removed_lints
 
 build-contracts:
-	rm target/wasm32-unknown-unknown/release/*wasm
+	rm -f target/wasm32-unknown-unknown/release/*wasm
 	cargo build --release --target wasm32-unknown-unknown
 
 deploy: build-contracts
