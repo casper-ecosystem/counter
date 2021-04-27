@@ -1,22 +1,27 @@
 prepare:
 	rustup target add wasm32-unknown-unknown
 
-clean:
-	cargo clean
+build-contract:
+	cargo build --release -p counter-define --target wasm32-unknown-unknown
+	cargo build --release -p counter-call --target wasm32-unknown-unknown
 
-lint:
-	cargo fmt
+test-only:
+	cargo test -p tests
+
+copy-wasm-file-to-test:
+	cp target/wasm32-unknown-unknown/release/counter*.wasm tests/wasm
+
+test: build-contract copy-wasm-file-to-test test-only
+
+clippy:
 	cargo clippy --all-targets --all -- -D warnings -A renamed_and_removed_lints
 
-build-contracts:
-	rm -f target/wasm32-unknown-unknown/release/*wasm
-	cargo build --release --target wasm32-unknown-unknown
+check-lint: clippy
+	cargo fmt --all -- --check
 
-deploy: build-contracts
-	cd scripts && ./deploy-smart-contract.sh
-
-increment: build-contracts
-	cd scripts && ./increment-counter.sh
-
-check-counter:
-	cd scripts && ./check-counter.sh
+lint: clippy
+	cargo fmt --all
+	
+clean:
+	cargo clean
+	rm -rf tests/wasm/*.wasm

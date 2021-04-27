@@ -39,12 +39,12 @@ pub extern "C" fn counter_get() {
 pub extern "C" fn call() {
     let counter_local_key = storage::new_uref(0); //initialize counter
 
-    //create map of references for stored contract
+    // Create initial named keys of the contract.
     let mut counter_named_keys: BTreeMap<String, Key> = BTreeMap::new();
     let key_name = String::from(COUNT_KEY);
     counter_named_keys.insert(key_name, counter_local_key.into());
 
-    // create entry point
+    // Create entry point
     let mut counter_entry_points = EntryPoints::new();
     counter_entry_points.add_entry_point(EntryPoint::new(
         COUNTER_INC,
@@ -61,7 +61,7 @@ pub extern "C" fn call() {
         EntryPointType::Contract,
     ));
 
-    let stored_contract_hash =
-        storage::new_contract(counter_entry_points, Some(counter_named_keys), None, None);
-    runtime::put_key(COUNTER_KEY, stored_contract_hash.0.into());
+    let (stored_contract_hash, _) =
+        storage::new_locked_contract(counter_entry_points, Some(counter_named_keys), None, None);
+    runtime::put_key(COUNTER_KEY, stored_contract_hash.into());
 }
