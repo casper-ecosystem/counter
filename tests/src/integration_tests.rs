@@ -18,11 +18,9 @@ mod tests {
         pub fn deploy() -> Self{
             let public_key: PublicKey = SecretKey::ed25519([1u8; 32]).into();
             let account_addr = AccountHash::from(&public_key);
-    
             let mut context = TestContextBuilder::new()
                 .with_public_key(public_key, U512::from(500_000_000_000_000_000u64))
                 .build();
-    
             let define_session = {
                 let session_code = Code::from("counter-define.wasm");
                 let session_args = runtime_args! {};
@@ -48,7 +46,7 @@ mod tests {
             self.context.run(session);
         }
 
-        pub fn increment_with_wasm(&mut self)->i32{
+        pub fn increment_with_wasm(&mut self){
             let session_args = runtime_args! {};
             let call_code = Code::from("counter-call.wasm");
             let session = SessionBuilder::new(call_code, session_args)
@@ -56,7 +54,6 @@ mod tests {
                 .with_authorization_keys(&[self.account_addr])
                 .build();
             self.context.run(session);
-            self.get_counter()
         }
 
         pub fn get_counter(&self)->i32{
@@ -82,9 +79,8 @@ mod tests {
         let mut contract = CounterContract::deploy();
         for expected_value in 1..=3 {
             // Increment value using an EntryPoint.
-
             contract.increment_with_endpoint_call();
-            println!("{}, {}",contract.get_counter(), expected_value);
+            assert_eq!(contract.get_counter(), expected_value);
         }
         assert_eq!(contract.get_counter(), 3);
     }
@@ -93,8 +89,8 @@ mod tests {
     fn should_increment_with_counter_call_contract() {
         let mut counter_contract = CounterContract::deploy();
         for expected_value in 1..=3 {
-            let counter_ret = counter_contract.increment_with_wasm();
-            println!("{}, {}",counter_ret, expected_value);
+            counter_contract.increment_with_wasm();
+            assert_eq!(counter_contract.get_counter(), expected_value);
         }
         assert_eq!(counter_contract.get_counter(), 3)
     }
