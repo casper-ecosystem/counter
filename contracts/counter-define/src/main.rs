@@ -61,7 +61,7 @@ pub extern "C" fn call() {
         EntryPointType::Contract,
     ));
 
-    let stored_contract_hash =
-        storage::new_contract(counter_entry_points, Some(counter_named_keys), None, None);
-    runtime::put_key(COUNTER_KEY, stored_contract_hash.0.into());
+    let (stored_contract_hash, _) =
+        storage::new_locked_contract(counter_entry_points, Some(counter_named_keys), None, None);
+    runtime::put_key(COUNTER_KEY, stored_contract_hash.into());
 }

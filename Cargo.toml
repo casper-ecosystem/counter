@@ -2,5 +2,9 @@
 
 members = [
     "contracts/counter-call",
-    "contracts/counter-define"
+    "contracts/counter-define",
+    "tests"
 ]
+
+[profile.release]
+lto = true 
