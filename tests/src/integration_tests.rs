@@ -4,18 +4,18 @@ mod tests {
     use casper_types::{
         account::AccountHash, runtime_args, PublicKey, RuntimeArgs, SecretKey, U512,
     };
-    
+
     const COUNT_KEY: &str = "count";
     const COUNTER_INC: &str = "counter_inc";
     const COUNTER_KEY: &str = "counter";
-    
-    pub struct CounterContract{
+
+    pub struct CounterContract {
         pub context: TestContext,
         pub account_addr: AccountHash,
     }
 
-    impl CounterContract{
-        pub fn deploy() -> Self{
+    impl CounterContract {
+        pub fn deploy() -> Self {
             let public_key: PublicKey = SecretKey::ed25519([1u8; 32]).into();
             let account_addr = AccountHash::from(&public_key);
             let mut context = TestContextBuilder::new()
@@ -30,13 +30,13 @@ mod tests {
                     .build()
             };
             context.run(define_session);
-            Self{
+            Self {
                 context,
-                account_addr
+                account_addr,
             }
         }
 
-        pub fn increment_with_endpoint_call(&mut self){
+        pub fn increment_with_endpoint_call(&mut self) {
             let session_code = Code::NamedKey(COUNTER_KEY.to_string(), COUNTER_INC.to_string());
             let session_args = runtime_args! {};
             let session = SessionBuilder::new(session_code, session_args)
@@ -46,7 +46,7 @@ mod tests {
             self.context.run(session);
         }
 
-        pub fn increment_with_wasm(&mut self){
+        pub fn increment_with_wasm(&mut self) {
             let session_args = runtime_args! {};
             let call_code = Code::from("counter-call.wasm");
             let session = SessionBuilder::new(call_code, session_args)
@@ -56,7 +56,7 @@ mod tests {
             self.context.run(session);
         }
 
-        pub fn get_counter(&self)->i32{
+        pub fn get_counter(&self) -> i32 {
             self.context
                 .query(
                     self.account_addr,
@@ -67,7 +67,6 @@ mod tests {
                 .unwrap()
         }
     }
-
 
     #[test]
     fn should_deploy_with_counter_zero() {
@@ -82,7 +81,6 @@ mod tests {
             contract.increment_with_endpoint_call();
             assert_eq!(contract.get_counter(), expected_value);
         }
-        assert_eq!(contract.get_counter(), 3);
     }
 
     #[test]
@@ -92,7 +90,6 @@ mod tests {
             counter_contract.increment_with_wasm();
             assert_eq!(counter_contract.get_counter(), expected_value);
         }
-        assert_eq!(counter_contract.get_counter(), 3)
     }
 }
 
