@@ -16,10 +16,10 @@ mod tests {
 
     impl CounterContract {
         pub fn deploy() -> Self {
-            let public_key: PublicKey = SecretKey::ed25519([1u8; 32]).into();
+            let public_key: PublicKey = SecretKey::ed25519_from_bytes([1u8; 32]).unwrap().into();
             let account_addr = AccountHash::from(&public_key);
             let mut context = TestContextBuilder::new()
-                .with_public_key(public_key, U512::from(500_000_000_000_000_000u64))
+                .with_public_key(public_key, U512::from(100_000_000_000_000u64))
                 .build();
             let define_session = {
                 let session_code = Code::from("counter-define.wasm");
@@ -77,7 +77,6 @@ mod tests {
     fn should_increment_with_direct_call() {
         let mut contract = CounterContract::deploy();
         for expected_value in 1..=3 {
-            // Increment value using an EntryPoint.
             contract.increment_with_endpoint_call();
             assert_eq!(contract.get_counter(), expected_value);
         }
