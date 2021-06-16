@@ -1,11 +1,10 @@
 #![no_main]
-#![no_std]
 
 extern crate alloc;
 
-use types::{runtime_args::RuntimeArgs, ApiError, ContractHash, Key};
+use casper_types::{runtime_args::RuntimeArgs, ApiError, ContractHash, Key};
 
-use contract::{contract_api::runtime, unwrap_or_revert::UnwrapOrRevert};
+use casper_contract::{contract_api::runtime, unwrap_or_revert::UnwrapOrRevert};
 
 const COUNTER_KEY: &str = "counter";
 const COUNTER_INC: &str = "counter_inc";
