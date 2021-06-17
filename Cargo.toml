@@ -1,8 +1,7 @@
 [workspace]
 
 members = [
-    "contracts/counter-call",
-    "contracts/counter-define",
+    "contracts",
     "tests"
 ]
 

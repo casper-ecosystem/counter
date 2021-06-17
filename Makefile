@@ -2,13 +2,14 @@ prepare:
 	rustup target add wasm32-unknown-unknown
 
 build-contract:
-	cargo build --release -p counter-define --target wasm32-unknown-unknown
-	cargo build --release -p counter-call --target wasm32-unknown-unknown
+	cargo build --release -p contracts --target wasm32-unknown-unknown
 
 test-only:
 	cargo test -p tests
 
 copy-wasm-file-to-test:
+	mkdir -p tests/wasm
+	rm -f tests/wasm/*.wasm
 	cp target/wasm32-unknown-unknown/release/counter*.wasm tests/wasm
 
 test: build-contract copy-wasm-file-to-test test-only

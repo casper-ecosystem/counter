@@ -17,17 +17,34 @@ use casper_types::{
 const COUNT_KEY: &str = "count";
 const COUNTER_INC: &str = "counter_inc";
 const COUNTER_GET: &str = "counter_get";
-const COUNTER_KEY: &str = "counter";
+const COUNTER_RESET: &str = "counter_reset";
+const PACKAGE: &str = "counter_package";
+const PACKAGE_ACCESS_TOKEN: &str = "counter_package_access_token";
 
 #[no_mangle]
 pub extern "C" fn counter_inc() {
-    let uref: URef = runtime::get_key(COUNT_KEY).unwrap().into_uref().unwrap();
+    let uref: URef = runtime::get_key(COUNT_KEY)
+        .unwrap_or_revert()
+        .into_uref()
+        .unwrap_or_revert();
     storage::add(uref, 1);
 }
 
 #[no_mangle]
+pub extern "C" fn counter_reset() {
+    let uref: URef = runtime::get_key(COUNT_KEY)
+        .unwrap_or_revert()
+        .into_uref()
+        .unwrap_or_revert();
+    storage::write(uref, 0);
+}
+
+#[no_mangle]
 pub extern "C" fn counter_get() {
-    let uref: URef = runtime::get_key(COUNT_KEY).unwrap().into_uref().unwrap();
+    let uref: URef = runtime::get_key(COUNT_KEY)
+        .unwrap_or_revert()
+        .into_uref()
+        .unwrap_or_revert();
     let result: i32 = storage::read(uref)
         .unwrap_or_revert_with(ApiError::Read)
         .unwrap_or_revert_with(ApiError::ValueNotFound);
@@ -38,6 +55,7 @@ pub extern "C" fn counter_get() {
 #[no_mangle]
 pub extern "C" fn call() {
     let counter_local_key = storage::new_uref(0); //initialize counter
+    runtime::put_key(COUNT_KEY, counter_local_key.into());
 
     // Create initial named keys of the contract.
     let mut counter_named_keys: BTreeMap<String, Key> = BTreeMap::new();
@@ -54,6 +72,13 @@ pub extern "C" fn call() {
         EntryPointType::Contract,
     ));
     counter_entry_points.add_entry_point(EntryPoint::new(
+        COUNTER_RESET,
+        Vec::new(),
+        CLType::Unit,
+        EntryPointAccess::Public,
+        EntryPointType::Contract,
+    ));
+    counter_entry_points.add_entry_point(EntryPoint::new(
         COUNTER_GET,
         Vec::new(),
         CLType::I32,
@@ -61,7 +86,10 @@ pub extern "C" fn call() {
         EntryPointType::Contract,
     ));
 
-    let (stored_contract_hash, _) =
-        storage::new_locked_contract(counter_entry_points, Some(counter_named_keys), None, None);
-    runtime::put_key(COUNTER_KEY, stored_contract_hash.into());
+    let _ = storage::new_contract(
+        counter_entry_points,
+        Some(counter_named_keys),
+        Some(String::from(PACKAGE)),
+        Some(String::from(PACKAGE_ACCESS_TOKEN)),
+    );
 }

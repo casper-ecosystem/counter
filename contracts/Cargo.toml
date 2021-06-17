@@ -1,5 +1,5 @@
 [package]
-name = "counter-call"
+name = "contracts"
 version = "0.1.0"
 authors = ["Maciej Zielinski <maciej@casperlabs.io>"]
 edition = "2018"
@@ -10,7 +10,21 @@ casper-types = "1.2.0"
 
 [[bin]]
 name = "counter-call"
-path = "src/main.rs"
+path = "src/counter_call.rs"
+bench = false
+doctest = false
+test = false
+
+[[bin]]
+name = "counter-v1-install"
+path = "src/counter_v1_install.rs"
+bench = false
+doctest = false
+test = false
+
+[[bin]]
+name = "counter-v2-reset"
+path = "src/counter_v2_reset.rs"
 bench = false
 doctest = false
 test = false
