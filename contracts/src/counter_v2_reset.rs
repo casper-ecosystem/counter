@@ -30,15 +30,6 @@ pub extern "C" fn counter_inc() {
 }
 
 #[no_mangle]
-pub extern "C" fn counter_reset() {
-    let uref: URef = runtime::get_key(COUNT_KEY)
-        .unwrap_or_revert()
-        .into_uref()
-        .unwrap_or_revert();
-    storage::write(uref, 0);
-}
-
-#[no_mangle]
 pub extern "C" fn counter_get() {
     let uref: URef = runtime::get_key(COUNT_KEY)
         .unwrap_or_revert()
@@ -49,6 +40,15 @@ pub extern "C" fn counter_get() {
         .unwrap_or_revert_with(ApiError::ValueNotFound);
     let typed_result = CLValue::from_t(result).unwrap_or_revert();
     runtime::ret(typed_result);
+}
+
+#[no_mangle]
+pub extern "C" fn counter_reset() {
+    let uref: URef = runtime::get_key(COUNT_KEY)
+        .unwrap_or_revert()
+        .into_uref()
+        .unwrap_or_revert();
+    storage::write(uref, 0);
 }
 
 #[no_mangle]
@@ -70,23 +70,23 @@ pub extern "C" fn call() {
         EntryPointType::Contract,
     ));
     counter_entry_points.add_entry_point(EntryPoint::new(
-        COUNTER_RESET,
-        Vec::new(),
-        CLType::Unit,
-        EntryPointAccess::Public,
-        EntryPointType::Contract,
-    ));
-    counter_entry_points.add_entry_point(EntryPoint::new(
         COUNTER_GET,
         Vec::new(),
         CLType::I32,
         EntryPointAccess::Public,
         EntryPointType::Contract,
     ));
-
+    counter_entry_points.add_entry_point(EntryPoint::new(
+        COUNTER_RESET,
+        Vec::new(),
+        CLType::Unit,
+        EntryPointAccess::Public,
+        EntryPointType::Contract,
+    ));
     let _ = storage::add_contract_version(
         counter_package_hash,
         counter_entry_points,
         Default::default(),
     );
+
 }

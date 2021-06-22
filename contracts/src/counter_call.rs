@@ -18,7 +18,7 @@ pub extern "C" fn call() {
     let counter_package_hash: ContractPackageHash = runtime::get_key(PACKAGE)
         .unwrap_or_revert()
         .into_hash()
-        .unwrap()
+        .unwrap_or_revert()
         .into();
 
     // Call Counter package.

@@ -17,7 +17,6 @@ use casper_types::{
 const COUNT_KEY: &str = "count";
 const COUNTER_INC: &str = "counter_inc";
 const COUNTER_GET: &str = "counter_get";
-const COUNTER_RESET: &str = "counter_reset";
 const PACKAGE: &str = "counter_package";
 const PACKAGE_ACCESS_TOKEN: &str = "counter_package_access_token";
 
@@ -28,15 +27,6 @@ pub extern "C" fn counter_inc() {
         .into_uref()
         .unwrap_or_revert();
     storage::add(uref, 1);
-}
-
-#[no_mangle]
-pub extern "C" fn counter_reset() {
-    let uref: URef = runtime::get_key(COUNT_KEY)
-        .unwrap_or_revert()
-        .into_uref()
-        .unwrap_or_revert();
-    storage::write(uref, 0);
 }
 
 #[no_mangle]
@@ -66,13 +56,6 @@ pub extern "C" fn call() {
     let mut counter_entry_points = EntryPoints::new();
     counter_entry_points.add_entry_point(EntryPoint::new(
         COUNTER_INC,
-        Vec::new(),
-        CLType::Unit,
-        EntryPointAccess::Public,
-        EntryPointType::Contract,
-    ));
-    counter_entry_points.add_entry_point(EntryPoint::new(
-        COUNTER_RESET,
         Vec::new(),
         CLType::Unit,
         EntryPointAccess::Public,
