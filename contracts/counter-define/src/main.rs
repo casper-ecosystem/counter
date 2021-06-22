@@ -21,13 +21,19 @@ const COUNTER_KEY: &str = "counter";
 
 #[no_mangle]
 pub extern "C" fn counter_inc() {
-    let uref: URef = runtime::get_key(COUNT_KEY).unwrap().into_uref().unwrap();
+    let uref: URef = runtime::get_key(COUNT_KEY)
+        .unwrap_or_revert_with(ApiError::MissingKey)
+        .into_uref()
+        .unwrap_or_revert_with(ApiError::UnexpectedKeyVariant);
     storage::add(uref, 1);
 }
 
 #[no_mangle]
 pub extern "C" fn counter_get() {
-    let uref: URef = runtime::get_key(COUNT_KEY).unwrap().into_uref().unwrap();
+    let uref: URef = runtime::get_key(COUNT_KEY)
+        .unwrap_or_revert_with(ApiError::MissingKey)
+        .into_uref()
+        .unwrap_or_revert_with(ApiError::UnexpectedKeyVariant);
     let result: i32 = storage::read(uref)
         .unwrap_or_revert_with(ApiError::Read)
         .unwrap_or_revert_with(ApiError::ValueNotFound);
