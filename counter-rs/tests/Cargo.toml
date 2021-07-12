@@ -1,0 +1,19 @@
+[package]
+name = "tests"
+version = "0.1.0"
+authors = ["Maciej Zielinski <maciek.s.zielinski@gmail.com>"]
+edition = "2018"
+
+[dependencies]
+
+[dev-dependencies]
+casper-contract = "1.2.0"
+casper-types = "1.2.0"
+casper-engine-test-support = "1.2.0"
+
+[[bin]]
+name = "integration-tests"
+path = "src/integration_tests.rs"
+
+[features]
+default = ["casper-contract/std", "casper-types/std", "casper-engine-test-support/test-support", "casper-contract/test-support"]

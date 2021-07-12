@@ -1,0 +1,10 @@
+[workspace]
+
+members = [
+    "contracts/counter-call",
+    "contracts/counter-define",
+    "tests"
+]
+
+[profile.release]
+lto = true 
