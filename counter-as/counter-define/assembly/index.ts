@@ -5,12 +5,11 @@ import {getKey,
         ret,
         EntryPoint, 
         EntryPoints,
-        EntryPointAccess,
         PublicAccess,
         EntryPointType,
-        newLockedContract,
-        AddContractVersionResult} from "casper-contract/index";
+        newLockedContract} from "casper-contract/index";
 import {Key} from "casper-contract/key";
+
 import {Pair} from "casper-contract/pair";
 import {fromBytesLoad} from "casper-contract/bytesrepr";
 import {CLValue,CLType,CLTypeTag}  from "casper-contract/clvalue";
@@ -21,24 +20,27 @@ const COUNTER_GET: string= "counter_get";
 const COUNTER_KEY: string = "counter";
 
 export function counter_inc():void {
-    let uref= getKey(COUNT_KEY);
-    if(uref === null){
-        Error.fromErrorCode(ErrorCode.GetKey).revert();
+    let key= getKey(COUNT_KEY);
+    if(key === null){
+        Error.fromErrorCode(ErrorCode.MissingKey).revert();
     } else {
-        let uref_key  = <Key>uref;
-        uref_key.add(CLValue.fromI32(<i32>1));
+        let uref_key = <Key>key;
+        if(key.uref === null){
+            Error.fromErrorCode(ErrorCode.UnexpectedKeyVariant).revert();
+        } else{
+            uref_key.add(CLValue.fromI32(<i32>1));
+        }   
     }
 }
 
 export function counter_get():void {
-    let uref = getKey(COUNT_KEY);
-    if(uref ===null){
-        Error.fromErrorCode(ErrorCode.GetKey).revert();
+    let key = getKey(COUNT_KEY);
+    if(key ===null){
+        Error.fromErrorCode(ErrorCode.MissingKey).revert();
     } else{
-        let uref_key  = <Key>uref;
-        let value =  uref_key.read();
-        if(value === null) {
-
+        let value =  (<Key>key).read();
+        if(value === null) {    
+            Error.fromErrorCode(ErrorCode.ValueNotFound).revert();
         } else{
             let result = fromBytesLoad<i32>(value).unwrap();
             let typed_result = CLValue.fromI32(result);
@@ -50,8 +52,8 @@ export function counter_get():void {
 export function call(): void {
     // Initialize counter
     let counter_local_key = Key.create(CLValue.fromI32(<i32>0));
-    if(counter_local_key === null){
-
+    if(counter_local_key === null) {
+        Error.fromErrorCode(ErrorCode.EarlyEndOfStream).revert();
     } else {
         let key = <Key>counter_local_key;
         // Create initial named keys of the contract.
