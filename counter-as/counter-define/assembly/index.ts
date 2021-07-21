@@ -24,7 +24,7 @@ export function counter_inc():void {
     if(key === null){
         Error.fromErrorCode(ErrorCode.MissingKey).revert();
     } else {
-        let uref_key = <Key>ey;
+        let uref_key = <Key>key;
         if(key.uref === null){
             Error.fromErrorCode(ErrorCode.UnexpectedKeyVariant).revert();
         } else{
