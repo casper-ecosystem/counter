@@ -13,5 +13,10 @@ $ make prepare
 ### Compile smart contracts
 Compile WASM files that will be used later.
 ```bash
-$ make build-contracts
+$ make build-contract
+```
+### Run tests
+You can run integration tests with this command:
+```bash
+$ make test
 ```
