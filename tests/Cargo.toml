@@ -1,19 +1,16 @@
 [package]
 name = "tests"
-version = "0.1.0"
+version = "1.0.0"
 authors = ["Maciej Zielinski <maciek.s.zielinski@gmail.com>"]
 edition = "2018"
 
-[dependencies]
-
 [dev-dependencies]
-casper-contract = "1.3.2"
-casper-types = "1.3.2"
-casper-engine-test-support = "1.3.2"
+casper-engine-test-support = { version = "2.0.3", features = ["test-support"] }
+casper-execution-engine = "1.4.3"
+casper-types = "1.4.5"
 
 [[bin]]
 name = "integration-tests"
 path = "src/integration_tests.rs"
-
-[features]
-default = ["casper-contract/std", "casper-types/std", "casper-engine-test-support/test-support", "casper-contract/test-support"]
+bench = false
+doctest = false
