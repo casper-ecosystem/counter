@@ -1,5 +1,8 @@
-#![no_main]
 #![no_std]
+#![no_main]
+
+#[cfg(not(target_arch = "wasm32"))]
+compile_error!("target arch should be wasm32: compile with '--target wasm32-unknown-unknown'");
 
 extern crate alloc;
 
@@ -43,14 +46,15 @@ pub extern "C" fn counter_get() {
 
 #[no_mangle]
 pub extern "C" fn call() {
-    let counter_local_key = storage::new_uref(0); //initialize counter
+    // Initialize counter to 0.
+    let counter_local_key = storage::new_uref(0_i32);
 
     // Create initial named keys of the contract.
     let mut counter_named_keys: BTreeMap<String, Key> = BTreeMap::new();
     let key_name = String::from(COUNT_KEY);
     counter_named_keys.insert(key_name, counter_local_key.into());
 
-    // Create entry point
+    // Create entry points to get the counter value and to increment the counter by 1.
     let mut counter_entry_points = EntryPoints::new();
     counter_entry_points.add_entry_point(EntryPoint::new(
         COUNTER_INC,
