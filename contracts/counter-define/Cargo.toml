@@ -1,12 +1,12 @@
 [package]
 name = "counter-define"
-version = "0.1.0"
+version = "1.0.0"
 authors = ["Maciej Zielinski <maciej@casperlabs.io>"]
 edition = "2018"
 
 [dependencies]
-casper-contract = "1.3.2"
-casper-types = "1.3.2"
+casper-contract = "1.4.3"
+casper-types = "1.4.5"
 
 [[bin]]
 name = "counter-define"
@@ -15,5 +15,6 @@ bench = false
 doctest = false
 test = false
 
-[features]
-default = ["casper-contract/std", "casper-types/std"]
+[profile.release]
+codegen-units = 1
+lto = true

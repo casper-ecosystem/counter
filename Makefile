@@ -1,27 +1,38 @@
 prepare:
 	rustup target add wasm32-unknown-unknown
 
-build-contract:
-	cargo build --release -p counter-define --target wasm32-unknown-unknown
-	cargo build --release -p counter-call --target wasm32-unknown-unknown
+build-contracts:
+	cd contracts/counter-define && cargo build --release --target wasm32-unknown-unknown
+	wasm-strip contracts/counter-define/target/wasm32-unknown-unknown/release/contract.wasm 2>/dev/null | true
+	cd contracts/counter-call && cargo build --release --target wasm32-unknown-unknown
+	wasm-strip contracts/counter-call/target/wasm32-unknown-unknown/release/contract.wasm 2>/dev/null | true
 
 test-only:
-	cargo test -p tests
+	cd tests && cargo test
 
-copy-wasm-file-to-test:
-	cp target/wasm32-unknown-unknown/release/counter*.wasm tests/wasm
-
-test: build-contract copy-wasm-file-to-test test-only
+test: build-contracts
+	mkdir -p tests/wasm
+	cp contracts/counter-define/target/wasm32-unknown-unknown/release/counter-define.wasm tests/wasm
+	cp contracts/counter-call/target/wasm32-unknown-unknown/release/counter-call.wasm tests/wasm
+	cd tests && cargo test
 
 clippy:
-	cargo clippy --all-targets --all -- -D warnings -A renamed_and_removed_lints
+	cd contracts/counter-define && cargo clippy --all-targets -- -D warnings
+	cd contracts/counter-call && cargo clippy --all-targets -- -D warnings
+	cd tests && cargo clippy --all-targets -- -D warnings
 
 check-lint: clippy
-	cargo fmt --all -- --check
+	cd contracts/counter-define && cargo fmt -- --check
+	cd contracts/counter-call && cargo fmt -- --check
+	cd tests && cargo fmt -- --check
 
 lint: clippy
-	cargo fmt --all
-	
+	cd contracts/counter-define && cargo fmt
+	cd contracts/counter-call && cargo fmt
+	cd tests && cargo fmt
+
 clean:
-	cargo clean
-	rm -rf tests/wasm/*.wasm
+	cd contracts/counter-define && cargo clean
+	cd contracts/counter-call && cargo clean
+	cd tests && cargo clean
+	rm -rf tests/wasm

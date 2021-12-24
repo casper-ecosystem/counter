@@ -1,4 +1,8 @@
+#![no_std]
 #![no_main]
+
+#[cfg(not(target_arch = "wasm32"))]
+compile_error!("target arch should be wasm32: compile with '--target wasm32-unknown-unknown'");
 
 extern crate alloc;
 
@@ -12,7 +16,7 @@ const COUNTER_GET: &str = "counter_get";
 
 #[no_mangle]
 pub extern "C" fn call() {
-    // Read the Counter smart contract's ContactHash.
+    // Read the Counter smart contract's ContractHash.
     let contract_hash = {
         let counter_uref = runtime::get_key(COUNTER_KEY).unwrap_or_revert_with(ApiError::GetKey);
         if let Key::Hash(hash) = counter_uref {
