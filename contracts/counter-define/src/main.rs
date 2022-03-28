@@ -83,10 +83,9 @@ pub extern "C" fn call() {
         storage::add_contract_version(contract_package_hash, counter_entry_points, counter_named_keys);
     let version_uref = storage::new_uref(contract_version);
 
-    /* This is the code for a locked contract, kept here for comparison
-    let (stored_contract_hash, _) =
-        storage::new_locked_contract(counter_entry_points, Some(counter_named_keys), None, None);
-    */
+    // This is the code for a locked contract, kept here for comparison
+    // let (stored_contract_hash, _) =
+    //    storage::new_locked_contract(counter_entry_points, Some(counter_named_keys), None, None);
 
     runtime::put_key(CONTRACT_VERSION_KEY, version_uref.into());
     runtime::put_key(COUNTER_KEY, stored_contract_hash.into());
