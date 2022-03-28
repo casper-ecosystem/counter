@@ -23,7 +23,7 @@ mod tests {
     /// The name of the named key under which the stored contract is referenced.
     const COUNTER_KEY: &str = "counter";
 
-    // Automatically incremented value for a contract version in a contract package 
+    // Automatically incremented value for a contract version in a contract package
     const CONTRACT_VERSION_KEY: &str = "contract_version";
 
     struct TestFixture {
