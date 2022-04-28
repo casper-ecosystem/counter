@@ -6,7 +6,11 @@ compile_error!("target arch should be wasm32: compile with '--target wasm32-unkn
 
 extern crate alloc;
 
-use alloc::{collections::BTreeMap, string::{String, ToString}, vec::Vec};
+use alloc::{
+    collections::BTreeMap,
+    string::{String, ToString},
+    vec::Vec,
+};
 use casper_contract::{
     contract_api::{runtime, storage},
     unwrap_or_revert::UnwrapOrRevert,
@@ -72,11 +76,11 @@ pub extern "C" fn call() {
         EntryPointType::Contract,
     ));
 
-    let (stored_contract_hash, contract_version) =
-        storage::new_contract(counter_entry_points, 
-            Some(counter_named_keys), 
-            Some("counter_package_name".to_string()),
-            Some("counter_access_uref".to_string())
+    let (stored_contract_hash, contract_version) = storage::new_contract(
+        counter_entry_points,
+        Some(counter_named_keys),
+        Some("counter_package_name".to_string()),
+        Some("counter_access_uref".to_string()),
     );
 
     // The current version of the contract will be reachable through named keys
