@@ -6,23 +6,22 @@ compile_error!("target arch should be wasm32: compile with '--target wasm32-unkn
 
 extern crate alloc;
 
-use alloc::{collections::BTreeMap, string::String, vec::Vec};
+use alloc::{collections::BTreeMap, string::{String, ToString}, vec::Vec};
 use casper_contract::{
     contract_api::{runtime, storage},
     unwrap_or_revert::UnwrapOrRevert,
 };
 use casper_types::{
     api_error::ApiError,
-    contracts::{ContractPackageHash, EntryPoint, EntryPointAccess, EntryPointType, EntryPoints},
+    contracts::{EntryPoint, EntryPointAccess, EntryPointType, EntryPoints},
     CLType, CLValue, Key, URef,
 };
-
-const CONTRACT_VERSION_KEY: &str = "contract_version";
 
 const COUNT_KEY: &str = "count";
 const COUNTER_INC: &str = "counter_inc";
 const COUNTER_GET: &str = "counter_get";
 const COUNTER_KEY: &str = "counter";
+const CONTRACT_VERSION_KEY: &str = "version";
 
 #[no_mangle]
 pub extern "C" fn counter_inc() {
@@ -48,10 +47,6 @@ pub extern "C" fn counter_get() {
 
 #[no_mangle]
 pub extern "C" fn call() {
-    // Create a contract package for this contract and save its hash value.
-    let (contract_package_hash, _): (ContractPackageHash, URef) =
-        storage::create_contract_package_at_hash();
-
     // Initialize counter to 0.
     let counter_local_key = storage::new_uref(0_i32);
 
@@ -77,18 +72,21 @@ pub extern "C" fn call() {
         EntryPointType::Contract,
     ));
 
-    // Create a contract that can be versioned
-    let (stored_contract_hash, contract_version) = storage::add_contract_version(
-        contract_package_hash,
-        counter_entry_points,
-        counter_named_keys,
+    let (stored_contract_hash, contract_version) =
+        storage::new_contract(counter_entry_points, 
+            Some(counter_named_keys), 
+            Some("counter_package_name".to_string()),
+            Some("counter_access_uref".to_string())
     );
+
+    // The current version of the contract will be reachable through named keys
     let version_uref = storage::new_uref(contract_version);
-
-    /* This is the code for a locked contract, kept here for comparison
-    let (stored_contract_hash, _) =
-        storage::new_locked_contract(counter_entry_points, Some(counter_named_keys), None, None); */
-
     runtime::put_key(CONTRACT_VERSION_KEY, version_uref.into());
+
+    /* To create a locked contract instead, use new_locked_contract and throw away the contract version returned
+    let (stored_contract_hash, _) =
+        storage::new_locked_contract(counter_entry_points, Some(counter_named_keys), None, None);*/
+
+    // Hash of the installed contract will be reachable through named keys
     runtime::put_key(COUNTER_KEY, stored_contract_hash.into());
 }
