@@ -24,7 +24,7 @@ mod tests {
     const COUNTER_KEY: &str = "counter";
 
     // Automatically incremented value for a contract version in a contract package
-    const CONTRACT_VERSION_KEY: &str = "contract_version";
+    const CONTRACT_VERSION_KEY: &str = "version";
 
     struct TestFixture {
         test_builder: InMemoryWasmTestBuilder,
