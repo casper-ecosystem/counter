@@ -16,8 +16,10 @@ mod tests {
 
     impl Context {
         pub fn new() -> Self {
-            let public_key: PublicKey = SecretKey::ed25519_from_bytes([1u8; 32]).unwrap().into();
+            let secret_key = SecretKey::ed25519_from_bytes([1u8; 32]).unwrap();
+            let public_key = PublicKey::from(&secret_key);
             let account_addr = AccountHash::from(&public_key);
+
             let context = TestContextBuilder::new()
                 .with_public_key(public_key, U512::from(100_000_000_000_000u64))
                 .build();
