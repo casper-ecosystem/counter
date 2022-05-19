@@ -6,7 +6,11 @@ compile_error!("target arch should be wasm32: compile with '--target wasm32-unkn
 
 extern crate alloc;
 
-use alloc::{collections::BTreeMap, string::String, vec::Vec};
+use alloc::{
+    collections::BTreeMap,
+    string::{String, ToString},
+    vec::Vec,
+};
 use casper_contract::{
     contract_api::{runtime, storage},
     unwrap_or_revert::UnwrapOrRevert,
@@ -21,6 +25,7 @@ const COUNT_KEY: &str = "count";
 const COUNTER_INC: &str = "counter_inc";
 const COUNTER_GET: &str = "counter_get";
 const COUNTER_KEY: &str = "counter";
+const CONTRACT_VERSION_KEY: &str = "version";
 
 #[no_mangle]
 pub extern "C" fn counter_inc() {
@@ -71,7 +76,21 @@ pub extern "C" fn call() {
         EntryPointType::Contract,
     ));
 
+    let (stored_contract_hash, contract_version) = storage::new_contract(
+        counter_entry_points,
+        Some(counter_named_keys),
+        Some("counter_package_name".to_string()),
+        Some("counter_access_uref".to_string()),
+    );
+
+    // The current version of the contract will be reachable through named keys
+    let version_uref = storage::new_uref(contract_version);
+    runtime::put_key(CONTRACT_VERSION_KEY, version_uref.into());
+
+    /* To create a locked contract instead, use new_locked_contract and throw away the contract version returned
     let (stored_contract_hash, _) =
-        storage::new_locked_contract(counter_entry_points, Some(counter_named_keys), None, None);
+        storage::new_locked_contract(counter_entry_points, Some(counter_named_keys), None, None);*/
+
+    // Hash of the installed contract will be reachable through named keys
     runtime::put_key(COUNTER_KEY, stored_contract_hash.into());
 }

@@ -23,6 +23,9 @@ mod tests {
     /// The name of the named key under which the stored contract is referenced.
     const COUNTER_KEY: &str = "counter";
 
+    // Automatically incremented value for a contract version in a contract package
+    const CONTRACT_VERSION_KEY: &str = "version";
+
     struct TestFixture {
         test_builder: InMemoryWasmTestBuilder,
         account_address: AccountHash,
@@ -112,6 +115,22 @@ mod tests {
                 .expect("should be i32.")
         }
 
+        /// Query latest global state under the account using a path of "counter" and get the last contract version.
+        fn get_version(&self) -> u32 {
+            self.test_builder
+                .query(
+                    None,
+                    Key::Account(self.account_address),
+                    &[CONTRACT_VERSION_KEY.to_string()],
+                )
+                .expect("should be stored value.")
+                .as_cl_value()
+                .expect("should be cl value.")
+                .clone()
+                .into_t::<u32>()
+                .expect("should be u32.")
+        }
+
         /// Increment the counter.
         ///
         /// If `use_stored_session` is `true`, the deploy used here is constructed to call the
@@ -149,6 +168,11 @@ mod tests {
     #[test]
     fn should_deploy_with_counter_zero() {
         assert_eq!(TestFixture::deploy().get_counter(), 0);
+    }
+
+    #[test]
+    fn should_retrieve_first_version() {
+        assert_eq!(TestFixture::deploy().get_version(), 1);
     }
 
     #[test]
