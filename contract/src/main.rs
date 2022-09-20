@@ -51,7 +51,6 @@ pub extern "C" fn counter_get() {
 
 #[no_mangle]
 pub extern "C" fn call() {
-
     // Initialize the count to 0 locally
     let count_start = storage::new_uref(0_i32);
 
@@ -60,9 +59,9 @@ pub extern "C" fn call() {
     let key_name = String::from(COUNT_KEY);
     counter_named_keys.insert(key_name, count_start.into());
 
-    // Create entry points for this contract 
+    // Create entry points for this contract
     let mut counter_entry_points = EntryPoints::new();
-    
+
     counter_entry_points.add_entry_point(EntryPoint::new(
         ENTRY_POINT_COUNTER_GET,
         Vec::new(),
@@ -78,7 +77,6 @@ pub extern "C" fn call() {
         EntryPointAccess::Public,
         EntryPointType::Contract,
     ));
-
 
     // Create a new contract package that can be upgraded
     let (stored_contract_hash, contract_version) = storage::new_contract(
@@ -98,5 +96,4 @@ pub extern "C" fn call() {
     /* To create a locked contract instead, use new_locked_contract and throw away the contract version returned
     let (stored_contract_hash, _) =
         storage::new_locked_contract(counter_entry_points, Some(counter_named_keys), None, None); */
-   
 }
