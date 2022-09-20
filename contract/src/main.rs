@@ -21,11 +21,11 @@ use casper_types::{
     CLType, CLValue, Key, URef,
 };
 
-const COUNT_KEY: &str = "count";
-const COUNTER_INC: &str = "counter_inc";
-const COUNTER_GET: &str = "counter_get";
-const COUNTER_KEY: &str = "counter";
+const ENTRY_POINT_COUNTER_INC: &str = "counter_inc";
+const ENTRY_POINT_COUNTER_GET: &str = "counter_get";
+
 const CONTRACT_VERSION_KEY: &str = "version";
+const COUNT_KEY: &str = "count";
 
 #[no_mangle]
 pub extern "C" fn counter_inc() {
@@ -33,7 +33,7 @@ pub extern "C" fn counter_inc() {
         .unwrap_or_revert_with(ApiError::MissingKey)
         .into_uref()
         .unwrap_or_revert_with(ApiError::UnexpectedKeyVariant);
-    storage::add(uref, 1);
+    storage::add(uref, 1); // increment the count by 1
 }
 
 #[no_mangle]
@@ -46,36 +46,41 @@ pub extern "C" fn counter_get() {
         .unwrap_or_revert_with(ApiError::Read)
         .unwrap_or_revert_with(ApiError::ValueNotFound);
     let typed_result = CLValue::from_t(result).unwrap_or_revert();
-    runtime::ret(typed_result);
+    runtime::ret(typed_result); // return the count value
 }
 
 #[no_mangle]
 pub extern "C" fn call() {
-    // Initialize counter to 0.
-    let counter_local_key = storage::new_uref(0_i32);
 
-    // Create initial named keys of the contract.
+    // Initialize the count to 0 locally
+    let count_start = storage::new_uref(0_i32);
+
+    // In the named keys of the contract, add a key for the count
     let mut counter_named_keys: BTreeMap<String, Key> = BTreeMap::new();
     let key_name = String::from(COUNT_KEY);
-    counter_named_keys.insert(key_name, counter_local_key.into());
+    counter_named_keys.insert(key_name, count_start.into());
 
-    // Create entry points to get the counter value and to increment the counter by 1.
+    // Create entry points for this contract 
     let mut counter_entry_points = EntryPoints::new();
+    
     counter_entry_points.add_entry_point(EntryPoint::new(
-        COUNTER_INC,
-        Vec::new(),
-        CLType::Unit,
-        EntryPointAccess::Public,
-        EntryPointType::Contract,
-    ));
-    counter_entry_points.add_entry_point(EntryPoint::new(
-        COUNTER_GET,
+        ENTRY_POINT_COUNTER_GET,
         Vec::new(),
         CLType::I32,
         EntryPointAccess::Public,
         EntryPointType::Contract,
     ));
 
+    counter_entry_points.add_entry_point(EntryPoint::new(
+        ENTRY_POINT_COUNTER_INC,
+        Vec::new(),
+        CLType::Unit,
+        EntryPointAccess::Public,
+        EntryPointType::Contract,
+    ));
+
+
+    // Create a new contract package that can be upgraded
     let (stored_contract_hash, contract_version) = storage::new_contract(
         counter_entry_points,
         Some(counter_named_keys),
@@ -83,14 +88,15 @@ pub extern "C" fn call() {
         Some("counter_access_uref".to_string()),
     );
 
-    // The current version of the contract will be reachable through named keys
+    // Store the contract version in the context's named keys
     let version_uref = storage::new_uref(contract_version);
     runtime::put_key(CONTRACT_VERSION_KEY, version_uref.into());
 
+    // Create a named key for the contract hash
+    runtime::put_key("counter", stored_contract_hash.into());
+
     /* To create a locked contract instead, use new_locked_contract and throw away the contract version returned
     let (stored_contract_hash, _) =
-        storage::new_locked_contract(counter_entry_points, Some(counter_named_keys), None, None);*/
-
-    // Hash of the installed contract will be reachable through named keys
-    runtime::put_key(COUNTER_KEY, stored_contract_hash.into());
+        storage::new_locked_contract(counter_entry_points, Some(counter_named_keys), None, None); */
+   
 }
