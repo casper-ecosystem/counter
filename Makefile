@@ -11,7 +11,7 @@ build-contract:
 test-only:
 	cd tests && cargo test
 
-test: build-contracts
+test: build-contract
 	mkdir -p tests/wasm
 	cp contract/target/wasm32-unknown-unknown/release/counter-define.wasm tests/wasm
 	cp counter-call/target/wasm32-unknown-unknown/release/counter-call.wasm tests/wasm
