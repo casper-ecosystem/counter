@@ -19,7 +19,7 @@ mod tests {
         let mut builder = InMemoryWasmTestBuilder::default();
         builder.run_genesis(&*DEFAULT_RUN_GENESIS_REQUEST).commit();
 
-        let contract_creation_request = ExecuteRequestBuilder::standard(
+        let contract_installation_request = ExecuteRequestBuilder::standard( 
             *DEFAULT_ACCOUNT_ADDR,
             COUNTER_DEFINE_WASM,
             runtime_args! {},
@@ -27,7 +27,7 @@ mod tests {
         .build();
 
         builder
-            .exec(contract_creation_request)
+            .exec(contract_installation_request)
             .expect_success()
             .commit();
 
