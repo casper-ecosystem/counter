@@ -1,5 +1,5 @@
 [package]
-name = "counter-define"
+name = "counter-v1"
 version = "1.0.0"
 edition = "2021"
 
@@ -8,7 +8,7 @@ casper-contract = "1.4.4"
 casper-types = "1.5.0"
 
 [[bin]]
-name = "counter-define"
+name = "counter-v1"
 path = "src/main.rs"
 bench = false
 doctest = false
