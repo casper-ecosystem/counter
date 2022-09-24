@@ -6,7 +6,7 @@ compile_error!("target arch should be wasm32: compile with '--target wasm32-unkn
 
 extern crate alloc;
 
-use alloc::{vec::Vec};
+use alloc::vec::Vec;
 use casper_contract::{
     contract_api::{runtime, storage},
     unwrap_or_revert::UnwrapOrRevert,
@@ -95,19 +95,20 @@ pub extern "C" fn call() {
 
     // Get the counter package hash so we can upgrade the package.
     let counter_package_hash = runtime::get_key(COUNTER_PACKAGE_NAME)
-    .unwrap_or_revert()
-    .into_hash()
-    .unwrap()
-    .into();
+        .unwrap_or_revert()
+        .into_hash()
+        .unwrap()
+        .into();
 
     // Add a new contract version to the package.
     // This contract will have a new entry point; but, it will not add named keys.
     let (stored_contract_hash, contract_version) = storage::add_contract_version(
         counter_package_hash,
-        counter_entry_points,   // New list of entry points
-        NamedKeys::default());  // Default named keys
+        counter_entry_points, // New list of entry points
+        NamedKeys::default(),
+    ); // Default named keys
 
-    // Here we are updating the version named key with a new value. 
+    // Here we are updating the version named key with a new value.
     // The version named key should already be part of the account.
     let version_uref = storage::new_uref(contract_version);
     runtime::put_key(CONTRACT_VERSION_KEY, version_uref.into());

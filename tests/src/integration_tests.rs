@@ -7,18 +7,16 @@ mod tests {
     };
     use casper_types::{runtime_args, ContractHash, RuntimeArgs};
 
-    //use casper_contract::{contract_api::runtime};
+    const COUNTER_V1_WASM: &str = "counter-v1.wasm"; // The first version of the contract
+    const COUNTER_V2_WASM: &str = "counter-v2.wasm"; // The first version of the contract
+    const COUNTER_CALL_WASM: &str = "counter-call.wasm"; // The session code that calls the contract
 
-    const COUNTER_V1_WASM: &str = "counter-v1.wasm";        // The first version of the contract
-    const COUNTER_V2_WASM: &str = "counter-v2.wasm";        // The first version of the contract
-    const COUNTER_CALL_WASM: &str = "counter-call.wasm";    // The session code that calls the contract
-
-    const CONTRACT_KEY: &str = "counter";                   // Named key referencing this contract
-    const COUNT_KEY: &str = "count";                        // Named key referencing the count value
-    const CONTRACT_VERSION_KEY: &str = "version";           // Automatically incremented version in a contract package
+    const CONTRACT_KEY: &str = "counter"; // Named key referencing this contract
+    const COUNT_KEY: &str = "count"; // Named key referencing the count value
+    const CONTRACT_VERSION_KEY: &str = "version"; // Automatically incremented version in a contract package
 
     const ENTRY_POINT_COUNTER_DECREMENT: &str = "counter_decrement"; // Entry point to decrement the count value
-    
+
     #[test]
     fn should_install_and_upgrade() {
         let mut builder = InMemoryWasmTestBuilder::default();
@@ -45,7 +43,7 @@ mod tests {
             .map(ContractHash::new)
             .expect("must get contract hash");
 
-        // Verify the first contract version is 1. We'll check this when we upgrade later
+        // Verify the first contract version is 1. We'll check this when we upgrade later.
         let account = builder
             .get_account(*DEFAULT_ACCOUNT_ADDR)
             .expect("should have account");
@@ -66,7 +64,7 @@ mod tests {
 
         assert_eq!(version, 1);
 
-        // Verify the initial value of count is 0
+        // Verify the initial value of count is 0.
         let contract = builder
             .get_contract(contract_v1_hash)
             .expect("this contract should exist");
@@ -87,7 +85,7 @@ mod tests {
 
         assert_eq!(count, 0);
 
-        // Use session code to increment the counter
+        // Use session code to increment the counter.
         let session_code_request = ExecuteRequestBuilder::standard(
             *DEFAULT_ACCOUNT_ADDR,
             COUNTER_CALL_WASM,
@@ -112,7 +110,7 @@ mod tests {
         assert_eq!(incremented_count, 1);
 
         ////////////////////////////////////////////////////////////////
-        // Upgrade the contract
+        // Upgrade the contract.
         ////////////////////////////////////////////////////////////////
         let contract_v2_installation_request = ExecuteRequestBuilder::standard(
             *DEFAULT_ACCOUNT_ADDR,
@@ -135,10 +133,31 @@ mod tests {
             .map(ContractHash::new)
             .expect("must get contract hash");
 
-        // Assert that we have a new contract hash for the upgraded version
+        // Assert that we have a new contract hash for the upgraded version.
         assert_ne!(contract_v1_hash, contract_v2_hash);
 
-        // Call counter to decrement the value.
+        // Verify the contract version is now 2.
+        let account = builder
+            .get_account(*DEFAULT_ACCOUNT_ADDR)
+            .expect("should have account");
+
+        let version_key = *account
+            .named_keys()
+            .get(CONTRACT_VERSION_KEY)
+            .expect("version uref should exist");
+
+        let version = builder
+            .query(None, version_key, &[])
+            .expect("should be stored value.")
+            .as_cl_value()
+            .expect("should be cl value.")
+            .clone()
+            .into_t::<u32>()
+            .expect("should be u32.");
+
+        assert_eq!(version, 2);
+
+        // Call the decrement entry point to decrement the value stored under "count".
         let contract_call_request = ExecuteRequestBuilder::contract_call_by_hash(
             *DEFAULT_ACCOUNT_ADDR,
             contract_v2_hash,
@@ -152,7 +171,8 @@ mod tests {
             .expect_success()
             .commit();
 
-        // Expect the counter to be 0
+        // Expect the counter to be 0 now.
+        // This tells us the contract was successfully upgraded and the decrement entry point can be called.
         let decremented_count = builder
             .query(None, count_key, &[])
             .expect("should be stored value.")
