@@ -25,6 +25,7 @@ const ENTRY_POINT_COUNTER_INC: &str = "counter_inc";
 const ENTRY_POINT_COUNTER_GET: &str = "counter_get";
 
 const CONTRACT_VERSION_KEY: &str = "version";
+const CONTRACT_KEY: &str = "counter";
 const COUNT_KEY: &str = "count";
 
 #[no_mangle]
@@ -95,5 +96,5 @@ pub extern "C" fn call() {
     runtime::put_key(CONTRACT_VERSION_KEY, version_uref.into());
 
     // Create a named key for the contract hash
-    runtime::put_key("counter", stored_contract_hash.into());
+    runtime::put_key(CONTRACT_KEY, stored_contract_hash.into());
 }

@@ -23,6 +23,7 @@ const ENTRY_POINT_COUNTER_DECREMENT: &str = "counter_decrement";
 
 const COUNTER_PACKAGE_NAME: &str = "counter_package_name";
 const CONTRACT_VERSION_KEY: &str = "version";
+const CONTRACT_KEY: &str = "counter";
 const COUNT_KEY: &str = "count";
 
 #[no_mangle]
@@ -111,7 +112,7 @@ pub extern "C" fn call() {
     let version_uref = storage::new_uref(contract_version);
     runtime::put_key(CONTRACT_VERSION_KEY, version_uref.into());
 
-    // We don't need to re-create a named key for the contract hash in this version.
+    // Add the latest contract hash into the named key.
     // The key should already exist and we will have access to it in this version.
-    // runtime::put_key("counter", stored_contract_hash.into());
+    runtime::put_key(CONTRACT_KEY, stored_contract_hash.into());
 }
