@@ -6,24 +6,22 @@ compile_error!("target arch should be wasm32: compile with '--target wasm32-unkn
 
 extern crate alloc;
 
-use alloc::{
-    collections::BTreeMap,
-    string::{String, ToString},
-    vec::Vec,
-};
+use alloc::{vec::Vec};
 use casper_contract::{
     contract_api::{runtime, storage},
     unwrap_or_revert::UnwrapOrRevert,
 };
 use casper_types::{
     api_error::ApiError,
-    contracts::{EntryPoint, EntryPointAccess, EntryPointType, EntryPoints},
-    CLType, CLValue, Key, URef,
+    contracts::{EntryPoint, EntryPointAccess, EntryPointType, EntryPoints, NamedKeys},
+    CLType, CLValue, URef,
 };
 
 const ENTRY_POINT_COUNTER_INC: &str = "counter_inc";
 const ENTRY_POINT_COUNTER_GET: &str = "counter_get";
+const ENTRY_POINT_COUNTER_DECREMENT: &str = "counter_decrement";
 
+const COUNTER_PACKAGE_NAME: &str = "counter_package_name";
 const CONTRACT_VERSION_KEY: &str = "version";
 const COUNT_KEY: &str = "count";
 
@@ -33,7 +31,7 @@ pub extern "C" fn counter_inc() {
         .unwrap_or_revert_with(ApiError::MissingKey)
         .into_uref()
         .unwrap_or_revert_with(ApiError::UnexpectedKeyVariant);
-    storage::add(uref, 1); // increment the count by 1
+    storage::add(uref, 1); // Increment the count by 1.
 }
 
 #[no_mangle]
@@ -46,20 +44,27 @@ pub extern "C" fn counter_get() {
         .unwrap_or_revert_with(ApiError::Read)
         .unwrap_or_revert_with(ApiError::ValueNotFound);
     let typed_result = CLValue::from_t(result).unwrap_or_revert();
-    runtime::ret(typed_result); // return the count value
+    runtime::ret(typed_result); // Return the count value.
+}
+
+#[no_mangle]
+pub extern "C" fn counter_decrement() {
+    let uref: URef = runtime::get_key(COUNT_KEY)
+        .unwrap_or_revert_with(ApiError::MissingKey)
+        .into_uref()
+        .unwrap_or_revert_with(ApiError::UnexpectedKeyVariant);
+    storage::add(uref, -1); // Decrement the count.
 }
 
 #[no_mangle]
 pub extern "C" fn call() {
-    // Initialize the count to 0 locally
-    let count_start = storage::new_uref(0_i32);
+    // In this version, we will not add any new named keys so we can comment this out.
+    // let count_start = storage::new_uref(0_i32);
+    // let mut counter_named_keys: BTreeMap<String, Key> = BTreeMap::new();
+    // let key_name = String::from(COUNT_KEY);
+    // counter_named_keys.insert(key_name, count_start.into());
 
-    // In the named keys of the contract, add a key for the count
-    let mut counter_named_keys: BTreeMap<String, Key> = BTreeMap::new();
-    let key_name = String::from(COUNT_KEY);
-    counter_named_keys.insert(key_name, count_start.into());
-
-    // Create entry points for this contract
+    // Create a new entry point list for this contract.
     let mut counter_entry_points = EntryPoints::new();
 
     counter_entry_points.add_entry_point(EntryPoint::new(
@@ -78,22 +83,35 @@ pub extern "C" fn call() {
         EntryPointType::Contract,
     ));
 
-    // Create a new contract package that can be upgraded
-    let (stored_contract_hash, contract_version) = storage::new_contract(
-        counter_entry_points,
-        Some(counter_named_keys),
-        Some("counter_package_name".to_string()),
-        Some("counter_access_uref".to_string()),
-    );
+    // Create an entry point to decrement the counter by 1.
+    counter_entry_points.add_entry_point(EntryPoint::new(
+        ENTRY_POINT_COUNTER_DECREMENT,
+        Vec::new(),
+        CLType::Unit,
+        EntryPointAccess::Public,
+        EntryPointType::Contract,
+    ));
 
-    /* To create a locked contract instead, use new_locked_contract and throw away the contract version returned
-    let (stored_contract_hash, _) =
-        storage::new_locked_contract(counter_entry_points, Some(counter_named_keys), None, None); */
+    // Get the counter package hash so we can upgrade the package.
+    let counter_package_hash = runtime::get_key(COUNTER_PACKAGE_NAME)
+    .unwrap_or_revert()
+    .into_hash()
+    .unwrap()
+    .into();
 
-    // Store the contract version in the context's named keys
+    // Add a new contract version to the package.
+    // This contract will have a new entry point; but, it will not add named keys.
+    let (stored_contract_hash, contract_version) = storage::add_contract_version(
+        counter_package_hash,
+        counter_entry_points,   // New list of entry points
+        NamedKeys::default());  // Default named keys
+
+    // Here we are updating the version named key with a new value. 
+    // The version named key should already be part of the account.
     let version_uref = storage::new_uref(contract_version);
     runtime::put_key(CONTRACT_VERSION_KEY, version_uref.into());
 
-    // Create a named key for the contract hash
-    runtime::put_key("counter", stored_contract_hash.into());
+    // We don't need to re-create a named key for the contract hash in this version.
+    // The key should already exist and we will have access to it in this version.
+    // runtime::put_key("counter", stored_contract_hash.into());
 }
