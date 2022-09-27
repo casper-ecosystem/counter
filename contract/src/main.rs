@@ -56,7 +56,7 @@ pub extern "C" fn call() {
     let count_start = storage::new_uref(0_i32);
 
     // In the named keys of the contract, add a key for the count
-    let mut counter_named_keys: BTreeMap<String, Key> = BTreeMap::new();
+    let mut counter_named_keys = NamedKeys::new();
     let key_name = String::from(COUNT_KEY);
     counter_named_keys.insert(key_name, count_start.into());
 
