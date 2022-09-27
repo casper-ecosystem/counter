@@ -7,7 +7,6 @@ compile_error!("target arch should be wasm32: compile with '--target wasm32-unkn
 extern crate alloc;
 
 use alloc::{
-    collections::BTreeMap,
     string::{String, ToString},
     vec::Vec,
 };
@@ -17,8 +16,8 @@ use casper_contract::{
 };
 use casper_types::{
     api_error::ApiError,
-    contracts::{EntryPoint, EntryPointAccess, EntryPointType, EntryPoints},
-    CLType, CLValue, Key, URef,
+    contracts::{EntryPoint, EntryPointAccess, EntryPointType, EntryPoints, NamedKeys},
+    CLType, CLValue, URef,
 };
 
 const ENTRY_POINT_COUNTER_INC: &str = "counter_inc";
