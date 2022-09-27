@@ -1,6 +1,7 @@
 [package]
 name = "tests"
 version = "1.0.0"
+authors = ["CasperLabs <https://discord.com/invite/Q38s3Vh>"]
 edition = "2021"
 
 [dependencies]
