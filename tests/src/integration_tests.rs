@@ -16,6 +16,7 @@ mod tests {
     const CONTRACT_VERSION_KEY: &str = "version"; // Automatically incremented version in a contract package
 
     const ENTRY_POINT_COUNTER_DECREMENT: &str = "counter_decrement"; // Entry point to decrement the count value
+    const ENTRY_POINT_COUNTER_INC: &str = "counter_inc"; // Entry point to increment the count value
 
     #[test]
     fn should_install_and_upgrade() {
@@ -157,6 +158,20 @@ mod tests {
 
         assert_eq!(version, 2);
 
+        // Call the increment entry point to decrement the value stored under "count".
+        let contract_increment_request = ExecuteRequestBuilder::contract_call_by_hash(
+            *DEFAULT_ACCOUNT_ADDR,
+            contract_v2_hash,
+            ENTRY_POINT_COUNTER_INC, 
+            runtime_args! {},
+        )
+        .build();
+
+        builder
+        .exec(contract_increment_request)
+        .expect_success()
+        .commit();
+
         // Call the decrement entry point to decrement the value stored under "count".
         let contract_call_request = ExecuteRequestBuilder::contract_call_by_hash(
             *DEFAULT_ACCOUNT_ADDR,
@@ -182,7 +197,7 @@ mod tests {
             .into_t::<i32>()
             .expect("should be i32.");
 
-        assert_eq!(decremented_count, 0);
+        assert_eq!(decremented_count, 1);
     }
 }
 
