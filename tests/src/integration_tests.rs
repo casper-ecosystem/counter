@@ -158,7 +158,7 @@ mod tests {
 
         assert_eq!(version, 2);
 
-        // Call the increment entry point to decrement the value stored under "count".
+        // Call the increment entry point to increment the value stored under "count".
         let contract_increment_request = ExecuteRequestBuilder::contract_call_by_hash(
             *DEFAULT_ACCOUNT_ADDR,
             contract_v2_hash,
