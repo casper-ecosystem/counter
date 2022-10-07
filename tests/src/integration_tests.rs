@@ -8,21 +8,30 @@ mod tests {
     use casper_types::{runtime_args, ContractHash, RuntimeArgs};
 
     const COUNTER_DEFINE_WASM: &str = "counter-define.wasm"; // The main example contract
-    const COUNTER_CALL_WASM: &str = "counter-call.wasm"; // The session code that calls the contract
-
+   
     const CONTRACT_KEY: &str = "counter"; // Named key referencing this contract
     const COUNT_KEY: &str = "count"; // Named key referencing the count value
     const CONTRACT_VERSION_KEY: &str = "version"; // Automatically incremented version in a contract package
+
+    const AMOUNT_RUNTIME_ARG_NAME: &str = "amount";
+    const ENTRY_POINT_COUNTER_INC: &str = "counter_inc"; // Entry point to increment the count value
+
+    const RUNTIME_ARG_NAME: &str = "message";
+    const VALUE: &str = "counter_package_name";
 
     #[test]
     fn should_be_able_to_install_and_increment() {
         let mut builder = InMemoryWasmTestBuilder::default();
         builder.run_genesis(&*DEFAULT_RUN_GENESIS_REQUEST).commit();
 
+        let session_args = runtime_args! {
+            RUNTIME_ARG_NAME => VALUE
+        };
+
         let contract_installation_request = ExecuteRequestBuilder::standard(
             *DEFAULT_ACCOUNT_ADDR,
             COUNTER_DEFINE_WASM,
-            runtime_args! {},
+            session_args
         )
         .build();
 
@@ -84,20 +93,33 @@ mod tests {
 
         assert_eq!(count, 0);
 
-        // Use session code to increment the counter
+        // Call the increment entry point to increment the value stored under "count".
+        let contract_hash = builder
+            .get_expected_account(*DEFAULT_ACCOUNT_ADDR)
+            .named_keys()
+            .get(CONTRACT_KEY)
+            .expect("must have contract hash key as part of contract creation")
+            .into_hash()
+            .map(ContractHash::new)
+            .expect("must get contract hash");
 
-        let session_code_request = ExecuteRequestBuilder::standard(
+        let amount = 20;
+        let contract_increment_request = ExecuteRequestBuilder::contract_call_by_hash(
             *DEFAULT_ACCOUNT_ADDR,
-            COUNTER_CALL_WASM,
+            contract_hash,
+            ENTRY_POINT_COUNTER_INC, 
             runtime_args! {
-                CONTRACT_KEY => contract_hash
+               AMOUNT_RUNTIME_ARG_NAME => amount
             },
         )
         .build();
 
-        builder.exec(session_code_request).expect_success().commit();
+        builder
+        .exec(contract_increment_request)
+        .expect_success()
+        .commit();
 
-        // Verify the value of count is now 1
+        // Verify the value of count is now equal to amount
 
         let incremented_count = builder
             .query(None, count_key, &[])
@@ -108,7 +130,7 @@ mod tests {
             .into_t::<i32>()
             .expect("should be i32.");
 
-        assert_eq!(incremented_count, 1);
+        assert_eq!(incremented_count, amount);
     }
 }
 
