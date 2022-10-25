@@ -28,7 +28,6 @@ const COUNT_KEY: &str = "count";
 const CONTRACT_KEY: &str = "counter";
 
 const AMOUNT_RUNTIME_ARG_NAME: &str = "amount";
-const RUNTIME_ARG_NAME: &str = "message";
 
 #[no_mangle]
 pub extern "C" fn counter_inc() {
@@ -39,7 +38,7 @@ pub extern "C" fn counter_inc() {
 
     let amount: i32 = runtime::get_named_arg(AMOUNT_RUNTIME_ARG_NAME);
 
-    storage::add(uref, amount); // increment the count by the amount specified
+    storage::add(uref, amount); // Increment the count by the amount specified
 }
 
 #[no_mangle]
@@ -78,19 +77,17 @@ pub extern "C" fn call() {
 
     counter_entry_points.add_entry_point(EntryPoint::new(
         ENTRY_POINT_COUNTER_INC,
-        vec![Parameter::new(AMOUNT_RUNTIME_ARG_NAME, CLType::I32)], // Vec::new(),
+        vec![Parameter::new(AMOUNT_RUNTIME_ARG_NAME, CLType::I32)], // Specify the amount as an argument
         CLType::Unit,
         EntryPointAccess::Public,
         EntryPointType::Contract,
     ));
 
-    let value: String = runtime::get_named_arg(RUNTIME_ARG_NAME);
-
     // Create a new contract package that can be upgraded
     let (stored_contract_hash, contract_version) = storage::new_contract(
         counter_entry_points,
         Some(counter_named_keys),
-        Some(value), //  Some("counter_package_name".to_string()),
+        Some("counter_package_name".to_string()),
         Some("counter_access_uref".to_string()),
     );
 

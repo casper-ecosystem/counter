@@ -16,17 +16,12 @@ mod tests {
     const AMOUNT_RUNTIME_ARG_NAME: &str = "amount";
     const ENTRY_POINT_COUNTER_INC: &str = "counter_inc"; // Entry point to increment the count value
 
-    const RUNTIME_ARG_NAME: &str = "message";
-    const VALUE: &str = "counter_package_name";
-
     #[test]
-    fn should_be_able_to_install_and_increment() {
+    fn should_install_and_increment_by_an_amount() {
         let mut builder = InMemoryWasmTestBuilder::default();
         builder.run_genesis(&*DEFAULT_RUN_GENESIS_REQUEST).commit();
 
-        let session_args = runtime_args! {
-            RUNTIME_ARG_NAME => VALUE
-        };
+        let session_args = runtime_args! {};
 
         let contract_installation_request = ExecuteRequestBuilder::standard(
             *DEFAULT_ACCOUNT_ADDR,
@@ -49,7 +44,7 @@ mod tests {
             .map(ContractHash::new)
             .expect("must get contract hash");
 
-        // Verify the first contract version is 1. We'll check this when we upgrade later
+        // Verify the first contract version is 1. 
 
         let account = builder
             .get_account(*DEFAULT_ACCOUNT_ADDR)
