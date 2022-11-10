@@ -21,6 +21,9 @@ use casper_types::{
     CLType, CLValue, Key, URef,
 };
 
+const CONTRACT_PACKAGE_NAME: &str = "counter_package_name";
+const CONTRACT_ACCESS_UREF: &str = "counter_access_uref";
+
 const ENTRY_POINT_COUNTER_INC: &str = "counter_inc";
 const ENTRY_POINT_COUNTER_GET: &str = "counter_get";
 
@@ -83,8 +86,8 @@ pub extern "C" fn call() {
     let (stored_contract_hash, contract_version) = storage::new_contract(
         counter_entry_points,
         Some(counter_named_keys),
-        Some("counter_package_name".to_string()),
-        Some("counter_access_uref".to_string()),
+        Some(CONTRACT_PACKAGE_NAME.to_string()),
+        Some(CONTRACT_ACCESS_UREF.to_string()),
     );
 
     /* To create a locked contract instead, use new_locked_contract and throw away the contract version returned

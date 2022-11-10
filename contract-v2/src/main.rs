@@ -21,10 +21,11 @@ const ENTRY_POINT_COUNTER_INC: &str = "counter_inc";
 const ENTRY_POINT_COUNTER_GET: &str = "counter_get";
 const ENTRY_POINT_COUNTER_DECREMENT: &str = "counter_decrement";
 
-const COUNTER_PACKAGE_NAME: &str = "counter_package_name";
 const CONTRACT_VERSION_KEY: &str = "version";
 const CONTRACT_KEY: &str = "counter";
 const COUNT_KEY: &str = "count";
+
+const CONTRACT_PACKAGE_NAME: &str = "counter_package_name";
 
 #[no_mangle]
 pub extern "C" fn counter_inc() {
@@ -59,13 +60,11 @@ pub extern "C" fn counter_decrement() {
 
 #[no_mangle]
 pub extern "C" fn call() {
-    // In this version, we will not add any new named keys so we can comment this out.
-    // let count_start = storage::new_uref(0_i32);
-    // let mut counter_named_keys: BTreeMap<String, Key> = BTreeMap::new();
-    // let key_name = String::from(COUNT_KEY);
-    // counter_named_keys.insert(key_name, count_start.into());
+    // In this version, we will not add any new named keys. 
+    // The named keys from the previous version will still be available.
 
     // Create a new entry point list for this contract.
+    // We need to specify all entry points, including the ones from the previous version.
     let mut counter_entry_points = EntryPoints::new();
 
     counter_entry_points.add_entry_point(EntryPoint::new(
@@ -94,19 +93,18 @@ pub extern "C" fn call() {
     ));
 
     // Get the counter package hash so we can upgrade the package.
-    let counter_package_hash = runtime::get_key(COUNTER_PACKAGE_NAME)
+    let counter_package_hash = runtime::get_key(CONTRACT_PACKAGE_NAME)
         .unwrap_or_revert()
         .into_hash()
         .unwrap()
         .into();
 
-    // Add a new contract version to the package.
-    // This contract will have a new entry point; but, it will not add named keys.
+    // Add a new contract version to the package with the new list of entry points. 
     let (stored_contract_hash, contract_version) = storage::add_contract_version(
         counter_package_hash,
-        counter_entry_points, // New list of entry points
+        counter_entry_points,
         NamedKeys::default(),
-    ); // Default named keys
+    ); 
 
     // Here we are updating the version named key with a new value.
     // The version named key should already be part of the account.
