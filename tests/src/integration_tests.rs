@@ -8,12 +8,12 @@ mod tests {
     use casper_types::{runtime_args, ContractHash, RuntimeArgs};
 
     const COUNTER_V1_WASM: &str = "counter-v1.wasm"; // The first version of the contract
-    const COUNTER_V2_WASM: &str = "counter-v2.wasm"; // The first version of the contract
-    const COUNTER_CALL_WASM: &str = "counter-call.wasm"; // The session code that calls the contract
+    const COUNTER_V2_WASM: &str = "counter-v2.wasm"; // The second version of the contract
+    const COUNTER_CALL_WASM: &str = "counter-call.wasm"; // Session code that calls the contract
 
     const CONTRACT_KEY: &str = "counter"; // Named key referencing this contract
-    const COUNT_KEY: &str = "count"; // Named key referencing the count value
-    const CONTRACT_VERSION_KEY: &str = "version"; // Automatically incremented version in a contract package
+    const COUNT_KEY: &str = "count"; // Named key referencing the value to increment/decrement
+    const CONTRACT_VERSION_KEY: &str = "version"; // Key maintaining the version of a contract package
 
     const ENTRY_POINT_COUNTER_DECREMENT: &str = "counter_decrement"; // Entry point to decrement the count value
     const ENTRY_POINT_COUNTER_INC: &str = "counter_inc"; // Entry point to increment the count value
