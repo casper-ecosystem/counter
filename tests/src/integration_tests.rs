@@ -9,9 +9,9 @@ mod tests {
 
     const COUNTER_DEFINE_WASM: &str = "counter-define.wasm"; // The main example contract
    
-    const CONTRACT_KEY: &str = "counter"; // Named key referencing this contract
-    const COUNT_KEY: &str = "count"; // Named key referencing the count value
-    const CONTRACT_VERSION_KEY: &str = "version"; // Automatically incremented version in a contract package
+    const CONTRACT_KEY: &str = "counter";           // Named key referencing this contract
+    const COUNT_KEY: &str = "count";                // Named key referencing the count value
+    const CONTRACT_VERSION_KEY: &str = "version";   // Automatically incremented version in a contract package
 
     const AMOUNT_RUNTIME_ARG_NAME: &str = "amount";
     const ENTRY_POINT_COUNTER_INC: &str = "counter_inc"; // Entry point to increment the count value
@@ -45,7 +45,6 @@ mod tests {
             .expect("must get contract hash");
 
         // Verify the first contract version is 1. 
-
         let account = builder
             .get_account(*DEFAULT_ACCOUNT_ADDR)
             .expect("should have account");
@@ -67,7 +66,6 @@ mod tests {
         assert_eq!(version, 1);
 
         // Verify the initial value of count is 0
-
         let contract = builder
             .get_contract(contract_hash)
             .expect("this contract should exist");
@@ -98,6 +96,7 @@ mod tests {
             .map(ContractHash::new)
             .expect("must get contract hash");
 
+        // Increment the "count" given the amount specified.
         let amount = 20;
         let contract_increment_request = ExecuteRequestBuilder::contract_call_by_hash(
             *DEFAULT_ACCOUNT_ADDR,
@@ -115,7 +114,6 @@ mod tests {
         .commit();
 
         // Verify the value of count is now equal to amount
-
         let incremented_count = builder
             .query(None, count_key, &[])
             .expect("should be stored value.")
