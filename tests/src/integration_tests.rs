@@ -110,6 +110,33 @@ mod tests {
 
         assert_eq!(incremented_count, 1);
 
+        // Call the decrement entry point, which should not be in version 1 before the upgrade.
+        let contract_decrement_request = ExecuteRequestBuilder::contract_call_by_hash(
+            *DEFAULT_ACCOUNT_ADDR,
+            contract_v1_hash,
+            ENTRY_POINT_COUNTER_DECREMENT,
+            runtime_args! {},
+        )
+        .build();
+
+        // Try executing the decrement entry point and expect an error.
+        builder
+            .exec(contract_decrement_request)
+            .expect_failure()
+            .commit();
+
+        // Ensure the count value was not decremented.
+        let current_count = builder
+            .query(None, count_key, &[])
+            .expect("should be stored value.")
+            .as_cl_value()
+            .expect("should be cl value.")
+            .clone()
+            .into_t::<i32>()
+            .expect("should be i32.");
+
+        assert_eq!(current_count, 1);
+
         ////////////////////////////////////////////////////////////////
         // Upgrade the contract.
         ////////////////////////////////////////////////////////////////
