@@ -19,6 +19,126 @@ mod tests {
     const ENTRY_POINT_COUNTER_INC: &str = "counter_inc"; // Entry point to increment the count value
 
     #[test]
+    fn should_install_and_only_increment() {
+        let mut builder = InMemoryWasmTestBuilder::default();
+        builder.run_genesis(&*DEFAULT_RUN_GENESIS_REQUEST).commit();
+
+        let contract_v1_installation_request = ExecuteRequestBuilder::standard(
+            *DEFAULT_ACCOUNT_ADDR,
+            COUNTER_V1_WASM,
+            runtime_args! {},
+        )
+        .build();
+
+        builder
+            .exec(contract_v1_installation_request)
+            .expect_success()
+            .commit();
+
+        let contract_v1_hash = builder
+            .get_expected_account(*DEFAULT_ACCOUNT_ADDR)
+            .named_keys()
+            .get(CONTRACT_KEY)
+            .expect("must have contract hash key as part of contract creation")
+            .into_hash()
+            .map(ContractHash::new)
+            .expect("must get contract hash");
+
+        // Verify the first contract version is 1.
+        let account = builder
+            .get_account(*DEFAULT_ACCOUNT_ADDR)
+            .expect("should have account");
+
+        let version_key = *account
+            .named_keys()
+            .get(CONTRACT_VERSION_KEY)
+            .expect("version uref should exist");
+
+        let version = builder
+            .query(None, version_key, &[])
+            .expect("should be stored value.")
+            .as_cl_value()
+            .expect("should be cl value.")
+            .clone()
+            .into_t::<u32>()
+            .expect("should be u32.");
+
+        assert_eq!(version, 1);
+
+        // Verify the initial value of count is 0.
+        let contract = builder
+            .get_contract(contract_v1_hash)
+            .expect("this contract should exist");
+
+        let count_key = *contract
+            .named_keys()
+            .get(COUNT_KEY)
+            .expect("count uref should exist in the contract named keys");
+
+        let count = builder
+            .query(None, count_key, &[])
+            .expect("should be stored value.")
+            .as_cl_value()
+            .expect("should be cl value.")
+            .clone()
+            .into_t::<i32>()
+            .expect("should be i32.");
+
+        assert_eq!(count, 0);
+
+        // Use session code to increment the counter.
+        let session_code_request = ExecuteRequestBuilder::standard(
+            *DEFAULT_ACCOUNT_ADDR,
+            COUNTER_CALL_WASM,
+            runtime_args! {
+                CONTRACT_KEY => contract_v1_hash
+            },
+        )
+        .build();
+
+        builder.exec(session_code_request).expect_success().commit();
+
+        // Verify the value of count is now 1
+        let incremented_count = builder
+            .query(None, count_key, &[])
+            .expect("should be stored value.")
+            .as_cl_value()
+            .expect("should be cl value.")
+            .clone()
+            .into_t::<i32>()
+            .expect("should be i32.");
+
+        assert_eq!(incremented_count, 1);
+
+        // Call the decrement entry point, which should not be in this version.
+        let contract_decrement_request = ExecuteRequestBuilder::contract_call_by_hash(
+            *DEFAULT_ACCOUNT_ADDR,
+            contract_v1_hash,
+            ENTRY_POINT_COUNTER_DECREMENT,
+            runtime_args! {},
+        )
+        .build();
+
+        // Try executing the decrement entry point and expect an error.
+        builder
+            .exec(contract_decrement_request)
+            .expect_failure()
+            .commit();
+
+        // Ensure the count value was not decremented.
+        let current_count = builder
+            .query(None, count_key, &[])
+            .expect("should be stored value.")
+            .as_cl_value()
+            .expect("should be cl value.")
+            .clone()
+            .into_t::<i32>()
+            .expect("should be i32.");
+
+        assert_eq!(current_count, 1);
+    }
+
+    #[test]
     fn should_install_and_upgrade() {
         let mut builder = InMemoryWasmTestBuilder::default();
         builder.run_genesis(&*DEFAULT_RUN_GENESIS_REQUEST).commit();

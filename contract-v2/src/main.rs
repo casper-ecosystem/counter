@@ -6,7 +6,10 @@ compile_error!("target arch should be wasm32: compile with '--target wasm32-unkn
 
 extern crate alloc;
 
-use alloc::vec::Vec;
+use alloc::{
+    string::{String, ToString},
+    vec::Vec,
+};
 use casper_contract::{
     contract_api::{runtime, storage},
     unwrap_or_revert::UnwrapOrRevert,
@@ -26,6 +29,7 @@ const CONTRACT_KEY: &str = "counter";
 const COUNT_KEY: &str = "count";
 
 const CONTRACT_PACKAGE_NAME: &str = "counter_package_name";
+const CONTRACT_ACCESS_UREF: &str = "counter_access_uref";
 
 #[no_mangle]
 pub extern "C" fn counter_inc() {
@@ -59,11 +63,60 @@ pub extern "C" fn counter_decrement() {
 }
 
 #[no_mangle]
-pub extern "C" fn call() {
-    // In this version, we will not add any new named keys. 
-    // The named keys from the previous version will still be available.
+pub extern "C" fn install_counter() {
 
-    // Create a new entry point list for this contract.
+    // Initialize the count to 0 locally
+    let count_start = storage::new_uref(0_i32);
+
+    // In the named keys of the contract, add a key for the count
+    let mut counter_named_keys = NamedKeys::new();
+    let key_name = String::from(COUNT_KEY);
+    counter_named_keys.insert(key_name, count_start.into());
+
+    // Create entry points for this contract
+    let mut counter_entry_points = EntryPoints::new();
+
+    counter_entry_points.add_entry_point(EntryPoint::new(
+        ENTRY_POINT_COUNTER_GET,
+        Vec::new(),
+        CLType::I32,
+        EntryPointAccess::Public,
+        EntryPointType::Contract,
+    ));
+
+    counter_entry_points.add_entry_point(EntryPoint::new(
+        ENTRY_POINT_COUNTER_INC,
+        Vec::new(),
+        CLType::Unit,
+        EntryPointAccess::Public,
+        EntryPointType::Contract,
+    ));
+
+    // Create a new contract package that can be upgraded
+    let (stored_contract_hash, contract_version) = storage::new_contract(
+        counter_entry_points,
+        Some(counter_named_keys),
+        Some("counter_package_name".to_string()),
+        Some("counter_access_uref".to_string()),
+    );
+
+    /* To create a locked contract instead, use new_locked_contract and throw away the contract version returned
+    let (stored_contract_hash, _) =
+        storage::new_locked_contract(counter_entry_points, Some(counter_named_keys), None, None); */
+
+    // Store the contract version in the context's named keys
+    let version_uref = storage::new_uref(contract_version);
+    runtime::put_key(CONTRACT_VERSION_KEY, version_uref.into());
+
+    // Create a named key for the contract hash
+    runtime::put_key(CONTRACT_KEY, stored_contract_hash.into());
+}
+
+#[no_mangle]
+pub extern "C" fn upgrade_counter() {
+    // In this version, we will not add any named keys. 
+    // The named keys from the previous version should still be available.
+    // Create a new entry point list that includes counter_decrement.
     // We need to specify all entry points, including the ones from the previous version.
     let mut counter_entry_points = EntryPoints::new();
 
@@ -114,4 +167,22 @@ pub extern "C" fn call() {
     // Add the latest contract hash into the named key.
     // The key should already exist and we will have access to it in this version.
     runtime::put_key(CONTRACT_KEY, stored_contract_hash.into());
+}
+
+#[no_mangle]
+pub extern "C" fn call() {
+
+    match runtime::get_key(CONTRACT_ACCESS_UREF) {
+        None => {
+            // The given key doesn't exist, so install the contract.
+            install_counter();
+            // Next, upgrade the contract.
+            // upgrade_counter();
+        }
+        Some(_contract_key) => {
+            // The stored contract and key exist, so upgrade the contract.
+            upgrade_counter();
+        }
+    }
+
 }
