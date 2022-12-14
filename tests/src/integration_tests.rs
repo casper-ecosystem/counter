@@ -73,7 +73,7 @@ mod tests {
         let count_key = *contract
             .named_keys()
             .get(COUNT_KEY)
-            .expect("count uref should exis in the contract named keys");
+            .expect("count uref should exist in the contract named keys");
 
         let count = builder
             .query(None, count_key, &[])
