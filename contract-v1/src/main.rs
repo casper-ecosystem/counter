@@ -29,7 +29,6 @@ const ENTRY_POINT_COUNTER_GET: &str = "counter_get";
 const CONTRACT_VERSION_KEY: &str = "version";
 const CONTRACT_KEY: &str = "counter";
 const COUNT_KEY: &str = "count";
-const CONTRACT_KEY: &str = "counter";
 
 #[no_mangle]
 pub extern "C" fn counter_inc() {
