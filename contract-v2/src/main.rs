@@ -177,7 +177,7 @@ pub extern "C" fn call() {
             // The given key doesn't exist, so install the contract.
             install_counter();
             // Next, upgrade the contract.
-            // upgrade_counter();
+            upgrade_counter();
         }
         Some(_contract_key) => {
             // The stored contract and key exist, so upgrade the contract.
