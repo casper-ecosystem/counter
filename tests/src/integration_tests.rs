@@ -20,7 +20,7 @@ mod tests {
 
     #[test]
     /// Install version 1 of the counter contract and check its available entry points.
-    /// Only the increment entry point should be available. 
+    /// Only the increment entry point should be available.
     /// The decrement call should fail, because that entry point should not be in this version.
     /// Test summary:
     /// - Install the counter-v1.wasm contract.
@@ -169,7 +169,7 @@ mod tests {
     /// - Assert that we have a new contract hash for the upgraded version.
     /// - Verify the new contract version is 2.
     /// - Increment the counter to check that counter_inc is still working after the upgrade. Count is now 2.
-    /// - Call the decrement entry point and verify that the count is now 1. 
+    /// - Call the decrement entry point and verify that the count is now 1.
     fn install_version1_and_upgrade_to_version2() {
         let mut builder = InMemoryWasmTestBuilder::default();
         builder.run_genesis(&*DEFAULT_RUN_GENESIS_REQUEST).commit();
@@ -342,15 +342,15 @@ mod tests {
         let contract_increment_request = ExecuteRequestBuilder::contract_call_by_hash(
             *DEFAULT_ACCOUNT_ADDR,
             contract_v2_hash,
-            ENTRY_POINT_COUNTER_INC, 
+            ENTRY_POINT_COUNTER_INC,
             runtime_args! {},
         )
         .build();
 
         builder
-        .exec(contract_increment_request)
-        .expect_success()
-        .commit();
+            .exec(contract_increment_request)
+            .expect_success()
+            .commit();
 
         // Call the decrement entry point to decrement the value stored under "count".
         let contract_call_request = ExecuteRequestBuilder::contract_call_by_hash(
@@ -390,7 +390,7 @@ mod tests {
     /// - Test the counter_inc entry point and increment the counter.
     /// - Verify that the count value is now 1.
     /// - Call the decrement entry point, which should succeed.
-    /// - Verify that the count is 0. 
+    /// - Verify that the count is 0.
     fn install_version2_directly_without_version1() {
         let mut builder = InMemoryWasmTestBuilder::default();
         builder.run_genesis(&*DEFAULT_RUN_GENESIS_REQUEST).commit();

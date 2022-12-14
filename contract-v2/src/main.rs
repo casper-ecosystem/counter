@@ -64,7 +64,6 @@ pub extern "C" fn counter_decrement() {
 
 #[no_mangle]
 pub extern "C" fn install_counter() {
-
     // Initialize the count to 0 locally
     let count_start = storage::new_uref(0_i32);
 
@@ -114,7 +113,7 @@ pub extern "C" fn install_counter() {
 
 #[no_mangle]
 pub extern "C" fn upgrade_counter() {
-    // In this version, we will not add any named keys. 
+    // In this version, we will not add any named keys.
     // The named keys from the previous version should still be available.
     // Create a new entry point list that includes counter_decrement.
     // We need to specify all entry points, including the ones from the previous version.
@@ -152,12 +151,12 @@ pub extern "C" fn upgrade_counter() {
         .unwrap()
         .into();
 
-    // Add a new contract version to the package with the new list of entry points. 
+    // Add a new contract version to the package with the new list of entry points.
     let (stored_contract_hash, contract_version) = storage::add_contract_version(
         counter_package_hash,
         counter_entry_points,
         NamedKeys::default(),
-    ); 
+    );
 
     // Here we are updating the version named key with a new value.
     // The version named key should already be part of the account.
@@ -171,7 +170,6 @@ pub extern "C" fn upgrade_counter() {
 
 #[no_mangle]
 pub extern "C" fn call() {
-
     match runtime::get_key(CONTRACT_ACCESS_UREF) {
         None => {
             // The given key doesn't exist, so install the contract.
@@ -184,5 +182,4 @@ pub extern "C" fn call() {
             upgrade_counter();
         }
     }
-
 }
