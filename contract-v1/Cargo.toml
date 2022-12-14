@@ -1,6 +1,7 @@
 [package]
 name = "counter-v1"
 version = "1.0.0"
+authors = ["CasperLabs <https://discord.com/invite/Q38s3Vh>"]
 edition = "2021"
 
 [dependencies]
@@ -13,3 +14,5 @@ path = "src/main.rs"
 bench = false
 doctest = false
 test = false
+
+[profile.release] #reduces Wasm size

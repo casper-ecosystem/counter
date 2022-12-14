@@ -7,7 +7,6 @@ compile_error!("target arch should be wasm32: compile with '--target wasm32-unkn
 extern crate alloc;
 
 use alloc::{
-    collections::BTreeMap,
     string::{String, ToString},
     vec::Vec,
 };
@@ -17,8 +16,8 @@ use casper_contract::{
 };
 use casper_types::{
     api_error::ApiError,
-    contracts::{EntryPoint, EntryPointAccess, EntryPointType, EntryPoints},
-    CLType, CLValue, Key, URef,
+    contracts::{EntryPoint, EntryPointAccess, EntryPointType, EntryPoints, NamedKeys},
+    CLType, CLValue, URef,
 };
 
 const CONTRACT_PACKAGE_NAME: &str = "counter_package_name";
@@ -30,6 +29,7 @@ const ENTRY_POINT_COUNTER_GET: &str = "counter_get";
 const CONTRACT_VERSION_KEY: &str = "version";
 const CONTRACT_KEY: &str = "counter";
 const COUNT_KEY: &str = "count";
+const CONTRACT_KEY: &str = "counter";
 
 #[no_mangle]
 pub extern "C" fn counter_inc() {
@@ -59,7 +59,7 @@ pub extern "C" fn call() {
     let count_start = storage::new_uref(0_i32);
 
     // In the named keys of the contract, add a key for the count
-    let mut counter_named_keys: BTreeMap<String, Key> = BTreeMap::new();
+    let mut counter_named_keys = NamedKeys::new();
     let key_name = String::from(COUNT_KEY);
     counter_named_keys.insert(key_name, count_start.into());
 
