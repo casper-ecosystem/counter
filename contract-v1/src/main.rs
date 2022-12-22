@@ -24,8 +24,6 @@ use casper_types::{
 };
 
 // Constants for the keys pointing to values stored in the account's named keys.
-constants are actually keys (for the values stored in named keys)
-
 const CONTRACT_PACKAGE_NAME: &str = "counter_package_name";
 const CONTRACT_ACCESS_UREF: &str = "counter_access_uref";
 
