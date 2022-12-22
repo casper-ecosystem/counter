@@ -180,7 +180,7 @@ pub extern "C" fn upgrade_counter() {
     runtime::put_key(CONTRACT_KEY, stored_contract_hash.into());
 }
 
-// Entry point that executes automatically when a caller interacts with the contract. 
+// Entry point that executes automatically when a caller interacts with the contract.
 #[no_mangle]
 pub extern "C" fn call() {
     match runtime::get_key(CONTRACT_ACCESS_UREF) {

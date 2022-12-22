@@ -60,7 +60,7 @@ pub extern "C" fn counter_get() {
     runtime::ret(typed_result); // Return the count value.
 }
 
-// Entry point that executes automatically when a caller interacts with the contract. 
+// Entry point that executes automatically when a caller interacts with the contract.
 #[no_mangle]
 pub extern "C" fn call() {
     // Initialize the count to 0, locally.

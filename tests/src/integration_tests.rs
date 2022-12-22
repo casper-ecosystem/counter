@@ -250,9 +250,7 @@ mod tests {
         )
         .build();
 
-        builder.exec(session_code_request)
-            .expect_success()
-            .commit();
+        builder.exec(session_code_request).expect_success().commit();
 
         // Verify the value of count is now 1.
         let incremented_count = builder
