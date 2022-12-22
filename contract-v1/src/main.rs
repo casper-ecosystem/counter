@@ -23,7 +23,9 @@ use casper_types::{
     CLType, CLValue, URef,
 };
 
-// Creating constants for values within the contract package.
+// Constants for the keys pointing to values stored in the account's named keys.
+constants are actually keys (for the values stored in named keys)
+
 const CONTRACT_PACKAGE_NAME: &str = "counter_package_name";
 const CONTRACT_ACCESS_UREF: &str = "counter_access_uref";
 
@@ -31,7 +33,7 @@ const CONTRACT_ACCESS_UREF: &str = "counter_access_uref";
 const ENTRY_POINT_COUNTER_INC: &str = "counter_inc";
 const ENTRY_POINT_COUNTER_GET: &str = "counter_get";
 
-// Creating constants for values within the contract.
+// Constants for the keys pointing to values stored in the contract's named keys.
 const CONTRACT_VERSION_KEY: &str = "version";
 const CONTRACT_KEY: &str = "counter";
 const COUNT_KEY: &str = "count";
@@ -60,7 +62,7 @@ pub extern "C" fn counter_get() {
     runtime::ret(typed_result); // Return the count value.
 }
 
-// Entry point that executes automatically when a caller interacts with the contract.
+// Entry point that executes automatically when a caller installs the contract.
 #[no_mangle]
 pub extern "C" fn call() {
     // Initialize the count to 0, locally.

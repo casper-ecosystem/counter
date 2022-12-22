@@ -29,12 +29,12 @@ const ENTRY_POINT_COUNTER_INC: &str = "counter_inc";
 const ENTRY_POINT_COUNTER_GET: &str = "counter_get";
 const ENTRY_POINT_COUNTER_DECREMENT: &str = "counter_decrement";
 
-// Creating constants for values within the contract.
+// Constants for the keys pointing to values stored in the contract's named keys.
 const CONTRACT_VERSION_KEY: &str = "version";
 const CONTRACT_KEY: &str = "counter";
 const COUNT_KEY: &str = "count";
 
-// Creating constants for values within the contract package.
+// Constants for the keys pointing to values stored in the account's named keys.
 const CONTRACT_PACKAGE_NAME: &str = "counter_package_name";
 const CONTRACT_ACCESS_UREF: &str = "counter_access_uref";
 
@@ -121,7 +121,7 @@ fn install_counter() {
     runtime::put_key(CONTRACT_KEY, stored_contract_hash.into());
 }
 
-// Helper functon that upgrades the contract package to a new version.
+// Helper function that upgrades the contract package to a new version.
 fn upgrade_counter() {
     // In this version, we will not add any named keys.
     // The named keys from the previous version should still be available.
@@ -178,7 +178,7 @@ fn upgrade_counter() {
     runtime::put_key(CONTRACT_KEY, stored_contract_hash.into());
 }
 
-// Entry point that executes automatically when a caller interacts with the contract.
+// Entry point that executes automatically when a caller installs the contract.
 #[no_mangle]
 pub extern "C" fn call() {
     match runtime::get_key(CONTRACT_ACCESS_UREF) {
