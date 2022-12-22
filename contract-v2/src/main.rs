@@ -72,9 +72,8 @@ pub extern "C" fn counter_decrement() {
     storage::add(uref, -1); // Decrement the count.
 }
 
-// Entry point that installs the counter contract on chain.
-#[no_mangle]
-pub extern "C" fn install_counter() {
+// Helper function that installs the counter contract on chain.
+fn install_counter() {
     // Initialize the count to 0, locally.
     let count_start = storage::new_uref(0_i32);
 
@@ -122,9 +121,8 @@ pub extern "C" fn install_counter() {
     runtime::put_key(CONTRACT_KEY, stored_contract_hash.into());
 }
 
-// Entry point that upgrades the contract package to a new version.
-#[no_mangle]
-pub extern "C" fn upgrade_counter() {
+// Helper functon that upgrades the contract package to a new version.
+fn upgrade_counter() {
     // In this version, we will not add any named keys.
     // The named keys from the previous version should still be available.
     // Create a new entry point list that includes counter_decrement.
