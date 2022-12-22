@@ -6,28 +6,34 @@ compile_error!("target arch should be wasm32: compile with '--target wasm32-unkn
 
 extern crate alloc;
 
+// Importing Rust types.
 use alloc::{
     string::{String, ToString},
     vec::Vec,
 };
+// Importing aspects of the Casper platform.
 use casper_contract::{
     contract_api::{runtime, storage},
     unwrap_or_revert::UnwrapOrRevert,
 };
+// Importing specific Casper types.
 use casper_types::{
     api_error::ApiError,
     contracts::{EntryPoint, EntryPointAccess, EntryPointType, EntryPoints, NamedKeys},
     CLType, CLValue, URef,
 };
 
+// Creating constants for the various contract entry points.
 const ENTRY_POINT_COUNTER_INC: &str = "counter_inc";
 const ENTRY_POINT_COUNTER_GET: &str = "counter_get";
 const ENTRY_POINT_COUNTER_DECREMENT: &str = "counter_decrement";
 
+// Creating constants for values within the contract.
 const CONTRACT_VERSION_KEY: &str = "version";
 const CONTRACT_KEY: &str = "counter";
 const COUNT_KEY: &str = "count";
 
+// Creating constants for values within the contract package.
 const CONTRACT_PACKAGE_NAME: &str = "counter_package_name";
 const CONTRACT_ACCESS_UREF: &str = "counter_access_uref";
 
@@ -64,15 +70,15 @@ pub extern "C" fn counter_decrement() {
 
 #[no_mangle]
 pub extern "C" fn install_counter() {
-    // Initialize the count to 0 locally
+    // Initialize the count to 0, locally.
     let count_start = storage::new_uref(0_i32);
 
-    // In the named keys of the contract, add a key for the count
+    // In the named keys of the contract, add a key for the count.
     let mut counter_named_keys = NamedKeys::new();
     let key_name = String::from(COUNT_KEY);
     counter_named_keys.insert(key_name, count_start.into());
 
-    // Create entry points for this contract
+    // Create the entry points for this contract.
     let mut counter_entry_points = EntryPoints::new();
 
     counter_entry_points.add_entry_point(EntryPoint::new(
@@ -91,7 +97,7 @@ pub extern "C" fn install_counter() {
         EntryPointType::Contract,
     ));
 
-    // Create a new contract package that can be upgraded
+    // Create a new contract package that can be upgraded.
     let (stored_contract_hash, contract_version) = storage::new_contract(
         counter_entry_points,
         Some(counter_named_keys),
@@ -103,11 +109,11 @@ pub extern "C" fn install_counter() {
     let (stored_contract_hash, _) =
         storage::new_locked_contract(counter_entry_points, Some(counter_named_keys), None, None); */
 
-    // Store the contract version in the context's named keys
+    // Store the contract version in the context's named keys.
     let version_uref = storage::new_uref(contract_version);
     runtime::put_key(CONTRACT_VERSION_KEY, version_uref.into());
 
-    // Create a named key for the contract hash
+    // Create a named key for the contract hash.
     runtime::put_key(CONTRACT_KEY, stored_contract_hash.into());
 }
 

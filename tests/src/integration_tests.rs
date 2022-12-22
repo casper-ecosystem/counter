@@ -1,10 +1,11 @@
 #[cfg(test)]
 mod tests {
-
+    // Outlining aspects of the Casper test support crate to include.
     use casper_engine_test_support::{
         ExecuteRequestBuilder, InMemoryWasmTestBuilder, DEFAULT_ACCOUNT_ADDR,
         DEFAULT_RUN_GENESIS_REQUEST,
     };
+    // Custom Casper types that will be used within this test.
     use casper_types::{runtime_args, ContractHash, RuntimeArgs};
 
     const COUNTER_V1_WASM: &str = "counter-v1.wasm"; // The first version of the contract
