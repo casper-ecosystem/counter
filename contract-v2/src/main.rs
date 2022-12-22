@@ -4,6 +4,7 @@
 #[cfg(not(target_arch = "wasm32"))]
 compile_error!("target arch should be wasm32: compile with '--target wasm32-unknown-unknown'");
 
+// This code imports necessary aspects of external crates that we will use in our contract code.
 extern crate alloc;
 
 // Importing Rust types.
@@ -37,6 +38,7 @@ const COUNT_KEY: &str = "count";
 const CONTRACT_PACKAGE_NAME: &str = "counter_package_name";
 const CONTRACT_ACCESS_UREF: &str = "counter_access_uref";
 
+// Entry point that increments the count value by 1.
 #[no_mangle]
 pub extern "C" fn counter_inc() {
     let uref: URef = runtime::get_key(COUNT_KEY)
@@ -46,6 +48,7 @@ pub extern "C" fn counter_inc() {
     storage::add(uref, 1); // Increment the count by 1.
 }
 
+// Entry point that returns the count value.
 #[no_mangle]
 pub extern "C" fn counter_get() {
     let uref: URef = runtime::get_key(COUNT_KEY)
@@ -59,6 +62,7 @@ pub extern "C" fn counter_get() {
     runtime::ret(typed_result); // Return the count value.
 }
 
+// Entry point that decrements the count value by 1.
 #[no_mangle]
 pub extern "C" fn counter_decrement() {
     let uref: URef = runtime::get_key(COUNT_KEY)
@@ -68,6 +72,7 @@ pub extern "C" fn counter_decrement() {
     storage::add(uref, -1); // Decrement the count.
 }
 
+// Entry point that installs the counter contract on chain.
 #[no_mangle]
 pub extern "C" fn install_counter() {
     // Initialize the count to 0, locally.
@@ -117,6 +122,7 @@ pub extern "C" fn install_counter() {
     runtime::put_key(CONTRACT_KEY, stored_contract_hash.into());
 }
 
+// Entry point that upgrades the contract package to a new version.
 #[no_mangle]
 pub extern "C" fn upgrade_counter() {
     // In this version, we will not add any named keys.
@@ -174,6 +180,7 @@ pub extern "C" fn upgrade_counter() {
     runtime::put_key(CONTRACT_KEY, stored_contract_hash.into());
 }
 
+// Entry point that executes automatically when a caller interacts with the contract. 
 #[no_mangle]
 pub extern "C" fn call() {
     match runtime::get_key(CONTRACT_ACCESS_UREF) {

@@ -4,6 +4,7 @@
 #[cfg(not(target_arch = "wasm32"))]
 compile_error!("target arch should be wasm32: compile with '--target wasm32-unknown-unknown'");
 
+// This code imports necessary aspects of external crates that we will use in our contract code.
 extern crate alloc;
 // Importing Rust types.
 use alloc::{
@@ -35,6 +36,7 @@ const CONTRACT_VERSION_KEY: &str = "version";
 const CONTRACT_KEY: &str = "counter";
 const COUNT_KEY: &str = "count";
 
+// Entry point that increments the count value by 1.
 #[no_mangle]
 pub extern "C" fn counter_inc() {
     let uref: URef = runtime::get_key(COUNT_KEY)
@@ -44,6 +46,7 @@ pub extern "C" fn counter_inc() {
     storage::add(uref, 1); // Increment the count by 1.
 }
 
+// Entry point that returns the count value.
 #[no_mangle]
 pub extern "C" fn counter_get() {
     let uref: URef = runtime::get_key(COUNT_KEY)
@@ -57,6 +60,7 @@ pub extern "C" fn counter_get() {
     runtime::ret(typed_result); // Return the count value.
 }
 
+// Entry point that executes automatically when a caller interacts with the contract. 
 #[no_mangle]
 pub extern "C" fn call() {
     // Initialize the count to 0, locally.
