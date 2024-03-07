@@ -23,20 +23,20 @@ use casper_types::{
     CLType, CLValue, URef,
 };
 
-// Constants for the keys pointing to values stored in the account's named keys.
+/// Constants for the keys pointing to values stored in the account's named keys.
 const CONTRACT_PACKAGE_NAME: &str = "counter_package_name";
 const CONTRACT_ACCESS_UREF: &str = "counter_access_uref";
 
-// Creating constants for the various contract entry points.
+/// Creating constants for the various contract entry points.
 const ENTRY_POINT_COUNTER_INC: &str = "counter_inc";
 const ENTRY_POINT_COUNTER_GET: &str = "counter_get";
 
-// Constants for the keys pointing to values stored in the contract's named keys.
+/// Constants for the keys pointing to values stored in the contract's named keys.
 const CONTRACT_VERSION_KEY: &str = "version";
 const CONTRACT_KEY: &str = "counter";
 const COUNT_KEY: &str = "count";
 
-// Entry point that increments the count value by 1.
+/// Entry point that increments the count value by 1.
 #[no_mangle]
 pub extern "C" fn counter_inc() {
     let uref: URef = runtime::get_key(COUNT_KEY)
@@ -46,7 +46,7 @@ pub extern "C" fn counter_inc() {
     storage::add(uref, 1); // Increment the count by 1.
 }
 
-// Entry point that returns the count value.
+/// Entry point that returns the count value.
 #[no_mangle]
 pub extern "C" fn counter_get() {
     let uref: URef = runtime::get_key(COUNT_KEY)
@@ -60,7 +60,7 @@ pub extern "C" fn counter_get() {
     runtime::ret(typed_result); // Return the count value.
 }
 
-// Entry point that executes automatically when a caller installs the contract.
+/// Entry point that executes automatically when a caller installs the contract.
 #[no_mangle]
 pub extern "C" fn call() {
     // Initialize the count to 0, locally.

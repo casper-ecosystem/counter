@@ -3,7 +3,7 @@ mod tests {
     // Outlining aspects of the Casper test support crate to include.
     use casper_engine_test_support::{
         ExecuteRequestBuilder, InMemoryWasmTestBuilder, DEFAULT_ACCOUNT_ADDR,
-        DEFAULT_RUN_GENESIS_REQUEST,
+        PRODUCTION_RUN_GENESIS_REQUEST,
     };
     // Custom Casper types that will be used within this test.
     use casper_types::{runtime_args, ContractHash, RuntimeArgs};
@@ -19,7 +19,6 @@ mod tests {
     const ENTRY_POINT_COUNTER_DECREMENT: &str = "counter_decrement"; // Entry point to decrement the count value
     const ENTRY_POINT_COUNTER_INC: &str = "counter_inc"; // Entry point to increment the count value
 
-    #[test]
     /// Install version 1 of the counter contract and check its available entry points.
     /// Only the increment entry point should be available.
     /// The decrement call should fail, because that entry point should not be in this version.
@@ -32,9 +31,12 @@ mod tests {
     /// - Verify that the count value is now 1.
     /// - Call the decrement entry point, which should fail.
     /// - Ensure the count value was not decremented and is still 1.
+    #[test]
     fn install_version1_and_check_entry_points() {
         let mut builder = InMemoryWasmTestBuilder::default();
-        builder.run_genesis(&*DEFAULT_RUN_GENESIS_REQUEST).commit();
+        builder
+            .run_genesis(&PRODUCTION_RUN_GENESIS_REQUEST)
+            .commit();
 
         // Install the contract.
         let contract_v1_installation_request = ExecuteRequestBuilder::standard(
@@ -153,7 +155,6 @@ mod tests {
         assert_eq!(current_count, 1);
     }
 
-    #[test]
     /// Install version 1 of the counter contract and check its functionality.
     /// Then, upgrade the contract by installing a second Wasm for version 2.
     /// Check the functionality of the second version.
@@ -171,9 +172,12 @@ mod tests {
     /// - Verify the new contract version is 2.
     /// - Increment the counter to check that counter_inc is still working after the upgrade. Count is now 2.
     /// - Call the decrement entry point and verify that the count is now 1.
+    #[test]
     fn install_version1_and_upgrade_to_version2() {
         let mut builder = InMemoryWasmTestBuilder::default();
-        builder.run_genesis(&*DEFAULT_RUN_GENESIS_REQUEST).commit();
+        builder
+            .run_genesis(&PRODUCTION_RUN_GENESIS_REQUEST)
+            .commit();
 
         // Install the first version of the contract.
         let contract_v1_installation_request = ExecuteRequestBuilder::standard(
@@ -381,7 +385,6 @@ mod tests {
         assert_eq!(decremented_count, 1);
     }
 
-    #[test]
     /// Install version 2 of the counter contract without having version 1 already on chain.
     /// Test summary:
     /// - Install the counter-v2.wasm contract.
@@ -392,9 +395,12 @@ mod tests {
     /// - Verify that the count value is now 1.
     /// - Call the decrement entry point, which should succeed.
     /// - Verify that the count is 0.
+    #[test]
     fn install_version2_directly_without_version1() {
         let mut builder = InMemoryWasmTestBuilder::default();
-        builder.run_genesis(&*DEFAULT_RUN_GENESIS_REQUEST).commit();
+        builder
+            .run_genesis(&PRODUCTION_RUN_GENESIS_REQUEST)
+            .commit();
 
         // Install the contract.
         let contract_v2_installation_request = ExecuteRequestBuilder::standard(
