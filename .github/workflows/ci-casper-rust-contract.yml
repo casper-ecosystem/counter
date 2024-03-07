@@ -23,7 +23,7 @@ jobs:
         with:
           profile: minimal
           components: rustfmt, clippy
-          toolchain: nightly
+          toolchain: nightly-2023-03-25
       # Needed for gcc install
       - run: sudo apt update && sudo apt install -y build-essential
       - run: make prepare
