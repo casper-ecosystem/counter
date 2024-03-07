@@ -19,10 +19,11 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v3
-      - uses: actions-rs/toolchain@v2
+      - uses: actions-rs/toolchain@v1
         with:
           profile: minimal
           components: rustfmt, clippy
+          toolchain: nightly
       # Needed for gcc install
       - run: sudo apt update && sudo apt install -y build-essential
       - run: make prepare
