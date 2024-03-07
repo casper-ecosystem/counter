@@ -5,9 +5,9 @@ authors = ["CasperLabs <https://discord.com/invite/Q38s3Vh>"]
 edition = "2021"
 
 [dependencies]
-casper-engine-test-support = { version = "7.0.1", features = ["test-support"] }
-casper-execution-engine = "7.0.1"
-casper-types = "4.0.1"
+casper-engine-test-support = { version = "5.0.0", features = ["test-support"] }
+casper-execution-engine = "5.0.0"
+casper-types = "3.0.0"
 
 [[bin]]
 name = "integration-tests"
