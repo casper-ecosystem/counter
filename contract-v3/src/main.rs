@@ -25,7 +25,7 @@ use casper_types::{
 };
 
 /// Creating constants for the various contract entry points.
-const ENTRY_POINT_COUNTER_INC: &str = "counter_increment";
+const ENTRY_POINT_COUNTER_INC: &str = "counter_inc";
 const ENTRY_POINT_COUNTER_GET: &str = "counter_get";
 const ENTRY_POINT_COUNTER_LAST_UPDATED_AT: &str = "counter_last_updated_at";
 const ENTRY_POINT_COUNTER_DECREMENT: &str = "counter_decrement";
@@ -42,12 +42,19 @@ const CONTRACT_ACCESS_UREF: &str = "counter_access_uref";
 
 /// Entry point that increments the count value by 1.
 #[no_mangle]
-pub extern "C" fn counter_increment() {
-    let uref: URef = runtime::get_key(COUNT_KEY)
+pub extern "C" fn counter_inc() {
+    let count_uref: URef = runtime::get_key(COUNT_KEY)
         .unwrap_or_revert_with(ApiError::MissingKey)
         .into_uref()
         .unwrap_or_revert_with(ApiError::UnexpectedKeyVariant);
-    storage::add(uref, 1); // Increment the count by 1.
+    storage::add(count_uref, 1); // Increment the count by 1.
+
+    let last_updated_uref = runtime::get_key(LAST_UPDATED_KEY)
+        .unwrap_or_revert_with(ApiError::MissingKey)
+        .into_uref()
+        .unwrap_or_revert_with(ApiError::UnexpectedKeyVariant);
+    let timestamp: u64 = runtime::get_blocktime().into();
+    storage::write(last_updated_uref, timestamp);
 }
 
 /// Entry point that returns the count value.
@@ -81,11 +88,18 @@ pub extern "C" fn counter_last_updated_at() {
 /// Entry point that decrements the count value by 1.
 #[no_mangle]
 pub extern "C" fn counter_decrement() {
-    let uref: URef = runtime::get_key(COUNT_KEY)
+    let count_uref: URef = runtime::get_key(COUNT_KEY)
         .unwrap_or_revert_with(ApiError::MissingKey)
         .into_uref()
         .unwrap_or_revert_with(ApiError::UnexpectedKeyVariant);
-    storage::add(uref, -1); // Decrement the count.
+    storage::add(count_uref, -1); // Decrement the count.
+
+    let last_updated_uref = runtime::get_key(LAST_UPDATED_KEY)
+        .unwrap_or_revert_with(ApiError::MissingKey)
+        .into_uref()
+        .unwrap_or_revert_with(ApiError::UnexpectedKeyVariant);
+    let timestamp: u64 = runtime::get_blocktime().into();
+    storage::write(last_updated_uref, timestamp);
 }
 
 /// Helper function that installs the counter contract on chain.
@@ -189,14 +203,12 @@ fn upgrade_counter() {
 
     // Get the existing named keys and add a new one to it
     let mut named_keys = NamedKeys::default();
-    named_keys.insert()
+    let last_updated = storage::new_uref(0_u64);
+    named_keys.insert(String::from(LAST_UPDATED_KEY), last_updated.into());
 
     // Add a new contract version to the package with the new list of entry points.
-    let (stored_contract_hash, contract_version) = storage::add_contract_version(
-        counter_package_hash,
-        counter_entry_points,
-        NamedKeys::default(),
-    );
+    let (stored_contract_hash, contract_version) =
+        storage::add_contract_version(counter_package_hash, counter_entry_points, named_keys);
 
     // Here we are updating the version named key with a new value.
     // The version named key should already be part of the account.
