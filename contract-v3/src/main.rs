@@ -4,27 +4,23 @@
 #[cfg(not(target_arch = "wasm32"))]
 compile_error!("target arch should be wasm32: compile with '--target wasm32-unknown-unknown'");
 
-// This code imports necessary aspects of external crates that we will use in our contract code.
 extern crate alloc;
 
-// Importing Rust types.
 use alloc::{
     string::{String, ToString},
     vec::Vec,
 };
-// Importing aspects of the Casper platform.
 use casper_contract::{
     contract_api::{runtime, storage},
     unwrap_or_revert::UnwrapOrRevert,
 };
-// Importing specific Casper types.
 use casper_types::{
     api_error::ApiError,
     contracts::{EntryPoint, EntryPointAccess, EntryPointType, EntryPoints, NamedKeys},
     CLType, CLValue, URef,
 };
 
-/// Creating constants for the various contract entry points.
+///  Constands for contract entry points
 const ENTRY_POINT_COUNTER_INC: &str = "counter_inc";
 const ENTRY_POINT_COUNTER_GET: &str = "counter_get";
 const ENTRY_POINT_COUNTER_LAST_UPDATED_AT: &str = "counter_last_updated_at";
@@ -47,7 +43,7 @@ pub extern "C" fn counter_inc() {
         .unwrap_or_revert_with(ApiError::MissingKey)
         .into_uref()
         .unwrap_or_revert_with(ApiError::UnexpectedKeyVariant);
-    storage::add(count_uref, 1); // Increment the count by 1.
+    storage::add(count_uref, 1);
 
     let last_updated_uref = runtime::get_key(LAST_UPDATED_KEY)
         .unwrap_or_revert_with(ApiError::MissingKey)
@@ -68,10 +64,10 @@ pub extern "C" fn counter_get() {
         .unwrap_or_revert_with(ApiError::Read)
         .unwrap_or_revert_with(ApiError::ValueNotFound);
     let typed_result = CLValue::from_t(result).unwrap_or_revert();
-    runtime::ret(typed_result); // Return the count value.
+    runtime::ret(typed_result);
 }
 
-/// Entry point that returns the unix time when the counter was updated last time.
+/// Entry point that returns the last updated timestamp of the counter.
 #[no_mangle]
 pub extern "C" fn counter_last_updated_at() {
     let uref: URef = runtime::get_key(LAST_UPDATED_KEY)
@@ -132,6 +128,15 @@ fn install_counter() {
         EntryPointType::Contract,
     ));
 
+    // Create an entry point to decrement the counter by 1.
+    counter_entry_points.add_entry_point(EntryPoint::new(
+        ENTRY_POINT_COUNTER_DECREMENT,
+        Vec::new(),
+        CLType::Unit,
+        EntryPointAccess::Public,
+        EntryPointType::Contract,
+    ));
+
     // Create a new contract package that can be upgraded.
     let (stored_contract_hash, contract_version) = storage::new_contract(
         counter_entry_points,
@@ -154,12 +159,7 @@ fn install_counter() {
 
 /// Helper function that upgrades the contract package to a new version.
 fn upgrade_counter() {
-    // In this version, we will not add any named keys.
-    // The named keys from the previous version should still be available.
-    // Create a new entry point list that includes counter_decrement.
-    // We need to specify all entry points, including the ones from the previous version.
     let mut counter_entry_points = EntryPoints::new();
-
     counter_entry_points.add_entry_point(EntryPoint::new(
         ENTRY_POINT_COUNTER_GET,
         Vec::new(),
@@ -185,7 +185,6 @@ fn upgrade_counter() {
         EntryPointType::Contract,
     ));
 
-    // Create an entry point for getting the last_updated at timestamp
     counter_entry_points.add_entry_point(EntryPoint::new(
         ENTRY_POINT_COUNTER_LAST_UPDATED_AT,
         Vec::new(),
