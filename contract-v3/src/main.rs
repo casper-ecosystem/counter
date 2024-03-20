@@ -200,8 +200,8 @@ fn upgrade_counter() {
         .unwrap()
         .into();
 
-    // Get the existing named keys and add a new one to it
-    let mut named_keys = NamedKeys::default();
+    // Add a new named_key
+    let mut named_keys = NamedKeys::new();
     let last_updated = storage::new_uref(0_u64);
     named_keys.insert(String::from(LAST_UPDATED_KEY), last_updated.into());
 
