@@ -1,0 +1,15 @@
+[package]
+name = "counter-v3"
+version = "1.0.0"
+edition = "2021"
+
+[dependencies]
+casper-contract = "3.0.0"
+casper-types = "3.0.0"
+
+[[bin]]
+name = "counter-v3"
+path = "src/main.rs"
+bench = false
+doctest = false
+test = false
