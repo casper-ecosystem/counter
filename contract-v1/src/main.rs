@@ -18,9 +18,10 @@ use casper_contract::{
 };
 // Importing specific Casper types.
 use casper_types::{
+    addressable_entity::{EntityEntryPoint as EntryPoint, EntryPoints},
     api_error::ApiError,
-    contracts::{EntryPoint, EntryPointAccess, EntryPointType, EntryPoints, NamedKeys},
-    CLType, CLValue, URef,
+    contracts::NamedKeys,
+    CLType, CLValue, EntryPointAccess, EntryPointPayment, EntryPointType, URef,
 };
 
 /// Constants for the keys pointing to values stored in the account's named keys.
@@ -79,7 +80,8 @@ pub extern "C" fn call() {
         Vec::new(),
         CLType::I32,
         EntryPointAccess::Public,
-        EntryPointType::Contract,
+        EntryPointType::Called,
+        EntryPointPayment::Caller,
     ));
 
     counter_entry_points.add_entry_point(EntryPoint::new(
@@ -87,7 +89,8 @@ pub extern "C" fn call() {
         Vec::new(),
         CLType::Unit,
         EntryPointAccess::Public,
-        EntryPointType::Contract,
+        EntryPointType::Called,
+        EntryPointPayment::Caller,
     ));
 
     // Create a new contract package that can be upgraded.
@@ -96,6 +99,7 @@ pub extern "C" fn call() {
         Some(counter_named_keys),
         Some(CONTRACT_PACKAGE_NAME.to_string()),
         Some(CONTRACT_ACCESS_UREF.to_string()),
+        None,
     );
 
     /* To create a locked contract instead, use new_locked_contract and throw away the contract version returned.

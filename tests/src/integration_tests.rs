@@ -1,10 +1,9 @@
 #[cfg(test)]
 mod tests {
     use casper_engine_test_support::{
-        ExecuteRequestBuilder, InMemoryWasmTestBuilder, DEFAULT_ACCOUNT_ADDR,
-        PRODUCTION_RUN_GENESIS_REQUEST,
+        ExecuteRequestBuilder, LmdbWasmTestBuilder, DEFAULT_ACCOUNT_ADDR, LOCAL_GENESIS_REQUEST,
     };
-    use casper_types::{runtime_args, ContractHash, RuntimeArgs};
+    use casper_types::{contracts::ContractHash, runtime_args};
 
     // Contract Wasm File Paths (Constants)
     const COUNTER_V1_WASM: &str = "counter-v1.wasm";
@@ -21,12 +20,13 @@ mod tests {
     // Contract Entry Points (Constants)
     const ENTRY_POINT_COUNTER_DECREMENT: &str = "counter_decrement";
     const ENTRY_POINT_COUNTER_INC: &str = "counter_inc";
+    #[cfg(test)]
     const ENTRY_POINT_COUNTER_LAST_UPDATED_AT: &str = "counter_last_updated_at";
 
     // Helper Functions
 
-    /// Deploys a contract version to the InMemoryWasmTestBuilder
-    fn deploy_contract(builder: &mut InMemoryWasmTestBuilder, wasm_code: &str) -> ContractHash {
+    /// Deploys a contract version to the LmdbWasmTestBuilder
+    fn deploy_contract(builder: &mut LmdbWasmTestBuilder, wasm_code: &str) -> ContractHash {
         let request =
             ExecuteRequestBuilder::standard(*DEFAULT_ACCOUNT_ADDR, wasm_code, runtime_args! {})
                 .build();
@@ -36,21 +36,22 @@ mod tests {
 
     /// Retrieves the contract hash from the default account's storage by a given key
     fn get_contract_hash_from_account(
-        builder: &mut InMemoryWasmTestBuilder,
+        builder: &mut LmdbWasmTestBuilder,
         key: &str,
     ) -> ContractHash {
         builder
-            .get_expected_account(*DEFAULT_ACCOUNT_ADDR)
+            .get_account(*DEFAULT_ACCOUNT_ADDR)
+            .expect("must have account")
             .named_keys()
             .get(key)
             .expect("must have contract hash key")
-            .into_hash()
+            .into_hash_addr()
             .map(ContractHash::new)
             .expect("must get contract hash")
     }
 
     /// Retrieves the value stored under the `count` key in the given contract
-    fn get_count(builder: &mut InMemoryWasmTestBuilder, contract_hash: ContractHash) -> i32 {
+    fn get_count(builder: &mut LmdbWasmTestBuilder, contract_hash: ContractHash) -> i32 {
         let count_key = *builder
             .get_contract(contract_hash)
             .expect("this contract should exist")
@@ -69,10 +70,7 @@ mod tests {
     }
 
     /// Retrieves the value stored under the `last_updated_at` key in the given contract (if present)
-    fn get_last_updated_at(
-        builder: &mut InMemoryWasmTestBuilder,
-        contract_hash: ContractHash,
-    ) -> u64 {
+    fn get_last_updated_at(builder: &mut LmdbWasmTestBuilder, contract_hash: ContractHash) -> u64 {
         let count_key = *builder
             .get_contract(contract_hash)
             .expect("this contract should exist")
@@ -91,7 +89,7 @@ mod tests {
     }
 
     /// Retrieves the contract version stored in the default account's storage
-    fn get_contract_version(builder: &mut InMemoryWasmTestBuilder) -> u32 {
+    fn get_contract_version(builder: &mut LmdbWasmTestBuilder) -> u32 {
         let version_key = *builder
             .get_account(*DEFAULT_ACCOUNT_ADDR)
             .expect("should have account")
@@ -118,10 +116,8 @@ mod tests {
         // - Attempts (and expects failure) to call counter_decrement_at (not present in v1).
         // - Ensures count value remains unchanged after failed decrement attempt.
 
-        let mut builder = InMemoryWasmTestBuilder::default();
-        builder
-            .run_genesis(&PRODUCTION_RUN_GENESIS_REQUEST)
-            .commit();
+        let mut builder = LmdbWasmTestBuilder::default();
+        builder.run_genesis(LOCAL_GENESIS_REQUEST.clone()).commit();
 
         // Deploy the counter contract (v1)
         let contract_v1_hash = deploy_contract(&mut builder, COUNTER_V1_WASM);
@@ -153,7 +149,7 @@ mod tests {
         // Call the counter_decrement entry point (not in v1)
         let contract_decrement_request = ExecuteRequestBuilder::contract_call_by_hash(
             *DEFAULT_ACCOUNT_ADDR,
-            contract_v1_hash,
+            contract_v1_hash.into(),
             ENTRY_POINT_COUNTER_DECREMENT,
             runtime_args! {},
         )
@@ -181,10 +177,8 @@ mod tests {
         // - Tests counter_inc entry point in v2.
         // - Tests counter_decrement_at entry point in v2 (successful after upgrade).
 
-        let mut builder = InMemoryWasmTestBuilder::default();
-        builder
-            .run_genesis(&PRODUCTION_RUN_GENESIS_REQUEST)
-            .commit();
+        let mut builder = LmdbWasmTestBuilder::default();
+        builder.run_genesis(LOCAL_GENESIS_REQUEST.clone()).commit();
 
         // Deploy the counter contract (v1)
         let contract_v1_hash = deploy_contract(&mut builder, COUNTER_V1_WASM);
@@ -216,7 +210,7 @@ mod tests {
         // Call the counter_decrement entry point (not in v1)
         let contract_decrement_request = ExecuteRequestBuilder::contract_call_by_hash(
             *DEFAULT_ACCOUNT_ADDR,
-            contract_v1_hash,
+            contract_v1_hash.into(),
             ENTRY_POINT_COUNTER_DECREMENT,
             runtime_args! {},
         )
@@ -243,7 +237,7 @@ mod tests {
         // Use session code to increment the counter
         let contract_increment_request = ExecuteRequestBuilder::contract_call_by_hash(
             *DEFAULT_ACCOUNT_ADDR,
-            contract_v2_hash,
+            contract_v2_hash.into(),
             ENTRY_POINT_COUNTER_INC,
             runtime_args! {},
         )
@@ -261,7 +255,7 @@ mod tests {
         // Test counter_decrement_at entry point in v2 (should work now)
         let contract_decrement_request = ExecuteRequestBuilder::contract_call_by_hash(
             *DEFAULT_ACCOUNT_ADDR,
-            contract_v2_hash,
+            contract_v2_hash.into(),
             ENTRY_POINT_COUNTER_DECREMENT,
             runtime_args! {},
         )
@@ -287,10 +281,8 @@ mod tests {
         // - Tests counter_inc entry point and updates count.
         // - Tests counter_decrement_at entry point and updates count.
 
-        let mut builder = InMemoryWasmTestBuilder::default();
-        builder
-            .run_genesis(&PRODUCTION_RUN_GENESIS_REQUEST)
-            .commit();
+        let mut builder = LmdbWasmTestBuilder::default();
+        builder.run_genesis(LOCAL_GENESIS_REQUEST.clone()).commit();
 
         // Deploy the counter contract (v2) - no v1 installation
         let contract_v2_hash = deploy_contract(&mut builder, COUNTER_V2_WASM);
@@ -322,7 +314,7 @@ mod tests {
         // Test decrement functionality (assumed to be present in v2)
         let contract_decrement_request = ExecuteRequestBuilder::contract_call_by_hash(
             *DEFAULT_ACCOUNT_ADDR,
-            contract_v2_hash,
+            contract_v2_hash.into(),
             ENTRY_POINT_COUNTER_DECREMENT,
             runtime_args! {},
         )
@@ -350,10 +342,8 @@ mod tests {
         // - Verifies last_updated_at functionality in v3 (initially 0).
         // - Tests counter_inc entry point in v3 and updates last_updated_at.
 
-        let mut builder = InMemoryWasmTestBuilder::default();
-        builder
-            .run_genesis(&PRODUCTION_RUN_GENESIS_REQUEST)
-            .commit();
+        let mut builder = LmdbWasmTestBuilder::default();
+        builder.run_genesis(LOCAL_GENESIS_REQUEST.clone()).commit();
 
         // Deploy the counter contract (v2)
         let contract_v2_hash = deploy_contract(&mut builder, COUNTER_V2_WASM);
@@ -386,7 +376,7 @@ mod tests {
         let contract_counter_last_updated_at_request =
             ExecuteRequestBuilder::contract_call_by_hash(
                 *DEFAULT_ACCOUNT_ADDR,
-                contract_v2_hash,
+                contract_v2_hash.into(),
                 ENTRY_POINT_COUNTER_LAST_UPDATED_AT,
                 runtime_args! {},
             )
@@ -417,7 +407,7 @@ mod tests {
         // Call the increment entry point to increment the value stored under "count"
         let contract_increment_request = ExecuteRequestBuilder::contract_call_by_hash(
             *DEFAULT_ACCOUNT_ADDR,
-            contract_v3_hash,
+            contract_v3_hash.into(),
             ENTRY_POINT_COUNTER_INC,
             runtime_args! {},
         )
@@ -446,10 +436,8 @@ mod tests {
         // - Tests increment and decrement entry points.
         // - Asserts correct state updates, including last_updated_at.
 
-        let mut builder = InMemoryWasmTestBuilder::default();
-        builder
-            .run_genesis(&PRODUCTION_RUN_GENESIS_REQUEST)
-            .commit();
+        let mut builder = LmdbWasmTestBuilder::default();
+        builder.run_genesis(LOCAL_GENESIS_REQUEST.clone()).commit();
 
         // Deploy the contract
         let contract_v3_hash = deploy_contract(&mut builder, COUNTER_V3_WASM);
@@ -482,7 +470,7 @@ mod tests {
         // Call the decrement entry point
         let contract_call_request = ExecuteRequestBuilder::contract_call_by_hash(
             *DEFAULT_ACCOUNT_ADDR,
-            contract_v3_hash,
+            contract_v3_hash.into(),
             ENTRY_POINT_COUNTER_DECREMENT,
             runtime_args! {},
         )
