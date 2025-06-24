@@ -1,6 +1,7 @@
 [package]
 name = "counter-v2"
 version = "2.0.0"
+authors = ["CasperAssociation <https://t.me/CSPRDevelopers>"]
 edition = "2021"
 resolver = "2"
 
