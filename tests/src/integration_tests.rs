@@ -489,7 +489,3 @@ mod tests {
         assert_eq!(last_updated_at, 2);
     }
 }
-
-fn main() {
-    panic!("Execute \"cargo test\" to test the contract, not \"cargo run\".");
-}

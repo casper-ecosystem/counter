@@ -10,9 +10,3 @@ casper-execution-engine = "8.0.0"
 casper-types = "6.0.0"
 #base64ct dependency lock should be removed once we use a rust-toolchain compliant with edition2024
 base64ct = "=1.7.2"
-
-[[bin]]
-name = "integration-tests"
-path = "src/integration_tests.rs"
-bench = false
-doctest = false
