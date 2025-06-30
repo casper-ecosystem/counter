@@ -9,7 +9,7 @@ build-contract:
 
 	wasm-strip contract-v1/target/wasm32-unknown-unknown/release/contract-v1.wasm 2>/dev/null | true
 	wasm-strip contract-v2/target/wasm32-unknown-unknown/release/contract-v2.wasm 2>/dev/null | true
-	wasm-strip contract-v3/target/wasm32-unknown-unknown/release/contract-v2.wasm 2>/dev/null | true
+	wasm-strip contract-v3/target/wasm32-unknown-unknown/release/contract-v3.wasm 2>/dev/null | true
 	wasm-strip counter-call/target/wasm32-unknown-unknown/release/counter-call.wasm 2>/dev/null | true
 
 test-only:

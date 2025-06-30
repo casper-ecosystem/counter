@@ -1,11 +1,15 @@
 [package]
 name = "counter-v2"
-version = "1.0.0"
+version = "2.0.0"
+authors = ["CasperAssociation <https://t.me/CSPRDevelopers>"]
 edition = "2021"
+resolver = "2"
 
 [dependencies]
-casper-contract = "3.0.0"
-casper-types = "3.0.0"
+casper-contract = "5.0.0"
+casper-types = "6.0.0"
+#base64ct dependency lock should be removed once we use a rust-toolchain compliant with edition2024
+base64ct = "=1.7.2"
 
 [[bin]]
 name = "counter-v2"

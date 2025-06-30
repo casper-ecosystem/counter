@@ -9,19 +9,24 @@ extern crate alloc;
 
 // Importing Rust types.
 use alloc::{
+    collections::btree_map::BTreeMap,
     string::{String, ToString},
     vec::Vec,
 };
 // Importing aspects of the Casper platform.
 use casper_contract::{
-    contract_api::{runtime, storage},
+    contract_api::{
+        runtime::{self, revert},
+        storage,
+    },
     unwrap_or_revert::UnwrapOrRevert,
 };
 // Importing specific Casper types.
 use casper_types::{
+    addressable_entity::{EntityEntryPoint as EntryPoint, EntryPoints},
     api_error::ApiError,
-    contracts::{EntryPoint, EntryPointAccess, EntryPointType, EntryPoints, NamedKeys},
-    CLType, CLValue, URef,
+    contracts::NamedKeys,
+    CLType, CLValue, EntityAddr, EntryPointAccess, EntryPointPayment, EntryPointType, Key, URef,
 };
 
 /// Creating constants for the various contract entry points.
@@ -90,7 +95,8 @@ fn install_counter() {
         Vec::new(),
         CLType::I32,
         EntryPointAccess::Public,
-        EntryPointType::Contract,
+        EntryPointType::Called,
+        EntryPointPayment::Caller,
     ));
 
     counter_entry_points.add_entry_point(EntryPoint::new(
@@ -98,7 +104,8 @@ fn install_counter() {
         Vec::new(),
         CLType::Unit,
         EntryPointAccess::Public,
-        EntryPointType::Contract,
+        EntryPointType::Called,
+        EntryPointPayment::Caller,
     ));
 
     // Create a new contract package that can be upgraded.
@@ -107,6 +114,7 @@ fn install_counter() {
         Some(counter_named_keys),
         Some("counter_package_name".to_string()),
         Some("counter_access_uref".to_string()),
+        None,
     );
 
     /* To create a locked contract instead, use new_locked_contract and throw away the contract version returned
@@ -134,7 +142,8 @@ fn upgrade_counter() {
         Vec::new(),
         CLType::I32,
         EntryPointAccess::Public,
-        EntryPointType::Contract,
+        EntryPointType::Called,
+        EntryPointPayment::Caller,
     ));
 
     counter_entry_points.add_entry_point(EntryPoint::new(
@@ -142,7 +151,8 @@ fn upgrade_counter() {
         Vec::new(),
         CLType::Unit,
         EntryPointAccess::Public,
-        EntryPointType::Contract,
+        EntryPointType::Called,
+        EntryPointPayment::Caller,
     ));
 
     // Create an entry point to decrement the counter by 1.
@@ -151,21 +161,23 @@ fn upgrade_counter() {
         Vec::new(),
         CLType::Unit,
         EntryPointAccess::Public,
-        EntryPointType::Contract,
+        EntryPointType::Called,
+        EntryPointPayment::Caller,
     ));
 
-    // Get the counter package hash so we can upgrade the package.
-    let counter_package_hash = runtime::get_key(CONTRACT_PACKAGE_NAME)
-        .unwrap_or_revert()
-        .into_hash()
-        .unwrap()
-        .into();
+    let previous_contract_hash =
+        match runtime::get_key(CONTRACT_PACKAGE_NAME).unwrap_or_revert_with(ApiError::MissingKey) {
+            Key::Hash(contract_hash) => contract_hash,
+            Key::AddressableEntity(EntityAddr::SmartContract(contract_hash)) => contract_hash,
+            _ => revert(ApiError::Unhandled),
+        };
 
     // Add a new contract version to the package with the new list of entry points.
     let (stored_contract_hash, contract_version) = storage::add_contract_version(
-        counter_package_hash,
+        previous_contract_hash.into(),
         counter_entry_points,
         NamedKeys::default(),
+        BTreeMap::new(),
     );
 
     // Here we are updating the version named key with a new value.
